@@ -101,7 +101,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .heroband { position: relative; overflow: hidden; background: radial-gradient(ellipse at 80% 20%, #3f0f17 0%, var(--band) 60%); border-bottom: 1px solid var(--line); }
 .hero-pattern { opacity: 1; }
 .hero-in { position: relative; display: grid; gap: 18px; padding-block: 64px 60px; max-width: 1320px; }
-.hero-title { font-size: clamp(52px, 8.4vw, 120px); line-height: .86; font-weight: 800; font-variation-settings: "opsz" 100; }
+.hero-title { font-size: clamp(40px, 5.6vw, 76px); line-height: .9; font-weight: 800; font-variation-settings: "opsz" 100; }
 .hero-lede { margin: 0; max-width: 62ch; font-size: 20px; line-height: 1.6; color: var(--muted); }
 .hero-lede em { color: var(--text); }
 .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
