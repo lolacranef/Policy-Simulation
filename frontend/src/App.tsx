@@ -121,8 +121,8 @@ export default function App() {
         <Guilloche className="topbar-pattern" lines={10} h={120} />
         <div className="wrap topbar-in">
           <a className="wordmark" href="#overview" onClick={(e) => { e.preventDefault(); go("overview"); }}>
-            <span>Bellwether</span>
-            <small>See tomorrow's supply-chain rules before they arrive</small>
+            <span>Chokepoint</span>
+            <small>Find where new rules could choke your data-center supply chain</small>
           </a>
           <span className="banner">Example data · for learning</span>
         </div>
@@ -165,8 +165,8 @@ export default function App() {
         <Guilloche className="foot-pattern" lines={14} h={200} />
         <div className="wrap foot-in">
           <div>
-            <span className="foot-title">Bellwether</span>
-            <p>A bellwether is an early sign of what's coming. This teaching tool helps you think ahead about supply-chain rules. It shows what could happen. It does not predict what will happen.</p>
+            <span className="foot-title">Chokepoint</span>
+            <p>A chokepoint is a narrow spot where one block can stop everything behind it. This teaching tool finds where new rules could do that to a data center's supply chain. It shows what could happen. It does not predict what will happen.</p>
           </div>
           <div>
             <span className="foot-h">Explore</span>

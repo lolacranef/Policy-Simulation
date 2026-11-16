@@ -1,8 +1,8 @@
-# Bellwether
+# Chokepoint
 
-*See tomorrow's supply-chain rules before they arrive.*
+*Find where new rules could choke your data-center supply chain.*
 
-**Live site:** https://lolacranef.github.io/Bellwether/
+**Live site:** https://lolacranef.github.io/Policy-Simulation/
 
 Inject a piece of regulatory intelligence into a datacenter build plan and see which parts, build waves and customers are exposed, when, how well the evidence supports it, and which levers reduce it. Scenario planning, not legal advice.
 

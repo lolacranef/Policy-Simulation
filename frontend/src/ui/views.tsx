@@ -72,7 +72,7 @@ export function Overview({ m, tour }: { m: Model; tour: TourStep[] }) {
       <section className="heroband">
         <Guilloche className="hero-pattern" />
         <div className="wrap hero-in">
-          <span className="kicker">Bellwether · regulatory foresight for data centers · intelligence as of 16 November 2026</span>
+          <span className="kicker">Chokepoint · regulatory foresight for data centers · intelligence as of 16 November 2026</span>
           <h1 className="display hero-title">If tomorrow's rules<br />arrived today, what<br />could we still build?</h1>
           <p className="hero-lede">
             A data center is a building full of computers. Those computers are built from parts made all over the world.
