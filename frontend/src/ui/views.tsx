@@ -72,8 +72,9 @@ export function Overview({ m, tour }: { m: Model; tour: TourStep[] }) {
       <section className="heroband">
         <Guilloche className="hero-pattern" />
         <div className="wrap hero-in">
-          <span className="kicker">Chokepoint · regulatory foresight for data centers · intelligence as of 16 November 2026</span>
-          <h1 className="display hero-title">If tomorrow's rules<br />arrived today, what<br />could we still build?</h1>
+          <span className="kicker">Regulatory foresight for data centers · intelligence as of 16 November 2026</span>
+          <h1 className="display hero-brand">Chokepoint</h1>
+          <h2 className="display hero-title">If tomorrow's rules arrived today,<br />what could we still build?</h2>
           <p className="hero-lede">
             A data center is a building full of computers. Those computers are built from parts made all over the world.
             New government rules can stop some of those parts from being bought or used. This tool lets you test a rule

@@ -64,7 +64,7 @@ button, select, input { font: inherit; color: inherit; }
 .topbar-pattern path { stroke: rgba(217, 176, 100, 0.09); }
 .topbar-in { position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 24px; padding-block: 18px 10px; }
 .wordmark { display: grid; gap: 4px; color: var(--text); text-decoration: none; }
-.wordmark span { font: 700 30px/1 var(--display); font-variation-settings: "opsz" 72; letter-spacing: .05em; text-transform: uppercase; }
+.wordmark span { font: 800 40px/1 var(--display); font-variation-settings: "opsz" 90; letter-spacing: .06em; text-transform: uppercase; color: var(--gold); }
 .wordmark small { font: italic 15px/1.2 var(--serif); color: var(--muted); }
 .banner { font: 600 12px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--gold); border: 1px solid var(--gold); padding: 7px 10px; border-radius: 2px; }
 .tabs { position: relative; display: flex; flex-wrap: wrap; gap: 0 4px; }
@@ -101,7 +101,8 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .heroband { position: relative; overflow: hidden; background: radial-gradient(ellipse at 80% 20%, #3f0f17 0%, var(--band) 60%); border-bottom: 1px solid var(--line); }
 .hero-pattern { opacity: 1; }
 .hero-in { position: relative; display: grid; gap: 18px; padding-block: 64px 60px; max-width: 1320px; }
-.hero-title { font-size: clamp(40px, 5.6vw, 76px); line-height: .9; font-weight: 800; font-variation-settings: "opsz" 100; }
+.hero-brand { font-size: clamp(72px, 14vw, 200px); line-height: .8; font-weight: 800; font-variation-settings: "opsz" 100; letter-spacing: .02em; color: var(--gold); }
+.hero-title { font-size: clamp(30px, 3.8vw, 52px); line-height: .95; color: var(--text); font-weight: 800; font-variation-settings: "opsz" 100; }
 .hero-lede { margin: 0; max-width: 62ch; font-size: 20px; line-height: 1.6; color: var(--muted); }
 .hero-lede em { color: var(--text); }
 .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
