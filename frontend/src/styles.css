@@ -63,6 +63,10 @@ button, select, input { font: inherit; color: inherit; }
 .topbar { position: relative; overflow: hidden; background: var(--band); border-bottom: 1px solid var(--line); }
 .topbar-pattern path { stroke: rgba(217, 176, 100, 0.09); }
 .topbar-in { position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 24px; padding-block: 18px 10px; }
+.brandlock { display: flex; align-items: center; gap: 14px; text-decoration: none; color: var(--gold); }
+.brandlock:hover .logo-mark { filter: drop-shadow(0 0 6px rgba(217, 176, 100, .35)); }
+.logo-mark { flex: none; display: block; color: var(--gold); }
+.foot-brand { display: flex; align-items: center; gap: 10px; color: var(--gold); }
 .wordmark { display: grid; gap: 4px; color: var(--text); text-decoration: none; }
 .wordmark span { font: 800 40px/1 var(--display); font-variation-settings: "opsz" 90; letter-spacing: .06em; text-transform: uppercase; color: var(--gold); }
 .wordmark small { font: italic 15px/1.2 var(--serif); color: var(--muted); }

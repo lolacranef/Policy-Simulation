@@ -10,6 +10,7 @@ import type { MonthCounts } from "./ui/charts";
 import { BUCKETS, bucketOf, monthLabel } from "./ui/shared";
 import { BRANCH_PLAIN, SCENARIO_PLAIN } from "./ui/plain";
 import { Guilloche } from "./ui/ornament";
+import { LogoMark } from "./ui/logo";
 import {
   EvidenceView, LeversView, MatrixView, Overview, PartsView, RulesView, TenantsView, TimelineView, WordsView,
   type Model, type PresetLever, type TabId, type TourStep,
@@ -122,9 +123,12 @@ export default function App() {
       <header className="topbar">
         <Guilloche className="topbar-pattern" lines={10} h={120} />
         <div className="wrap topbar-in">
-          <a className="wordmark" href="#overview" onClick={(e) => { e.preventDefault(); go("overview"); }}>
-            <span>Chokepoint</span>
-            <small>Find where new rules could choke your data-center supply chain</small>
+          <a className="brandlock" href="#overview" onClick={(e) => { e.preventDefault(); go("overview"); }} aria-label="Chokepoint home">
+            <LogoMark size={52} />
+            <span className="wordmark">
+              <span>Chokepoint</span>
+              <small>Find where new rules could choke your data-center supply chain</small>
+            </span>
           </a>
           <span className="banner">Illustrative data · scenario planning</span>
         </div>
@@ -147,7 +151,7 @@ export default function App() {
             </div>
             <input type="range" id="cursor" min={0} max={MONTHS.length - 1} value={cursor} aria-label="As-of month"
               onChange={(e) => { setCursor(Number(e.target.value)); setCursorOn(true); }} />
-            <span className="readout">{cursorOn ? monthLabel(MONTHS[cursor]) : "per wave"}</span>
+            <span className="readout">{cursorOn ? monthLabel(MONTHS[cursor]) : "per phase"}</span>
           </div>
           {levers.length > 0 && <button className="lever-pill" onClick={() => go("levers")}>{levers.length} mitigation{levers.length > 1 ? "s" : ""} applied</button>}
         </div>
@@ -169,7 +173,7 @@ export default function App() {
         <Guilloche className="foot-pattern" lines={14} h={200} />
         <div className="wrap foot-in">
           <div>
-            <span className="foot-title">Chokepoint</span>
+            <span className="foot-brand"><LogoMark size={34} /><span className="foot-title">Chokepoint</span></span>
             <p>A chokepoint is a narrow spot where one block can stop everything behind it. This model locates where prospective regulation would do that to a data center's supply chain. It conditions on scenarios; it does not forecast policy.</p>
           </div>
           <div>
