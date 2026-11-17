@@ -129,3 +129,127 @@ export function sureness(g: EvidenceGrade): { label: string; level: 1 | 2 | 3 | 
     : `The instrument is ${LEGAL_PLAIN[g.legal_status].toLowerCase()} and its terms may change before adoption.`;
   return { label, level: level as 1 | 2 | 3 | 4, why };
 }
+
+export interface RuleExplained {
+  what: string;        // one-sentence statement of the restriction
+  targets: string;     // who or what is restricted
+  covers: string;      // products or activities in scope
+  where: string;       // the transaction it bites on
+  exceptions: string;  // carve-outs, or "None"
+  matters: string;     // implication for a data-center build
+}
+
+export const RULE_EXPLAINED: Record<string, RuleExplained> = {
+  R1: {
+    what: "No new FCC equipment authorization for a device that contains a logic-bearing component made by a Covered List entity.",
+    targets: "Producers already on the FCC Covered List, wherever the device is assembled or branded.",
+    covers: "Any device category; the test is applied to each logic-bearing component (DSPs, controllers, ASICs, BMCs).",
+    where: "New FCC equipment authorizations, which are needed to import or market a new model in the US.",
+    exceptions: "Models authorized before 13 October 2026 keep their authorization unless significantly modified.",
+    matters: "A Western-branded switch or server is exposed if one controller inside it comes from a covered producer. Supplier-tier tracing, not brand, determines exposure.",
+  },
+  "R1-FW": {
+    what: "Proposed extension of R1 to software and firmware supplied by Covered List entities.",
+    targets: "Covered List entities as software or firmware suppliers.",
+    covers: "Firmware and software in any device, including devices already deployed.",
+    where: "New authorizations and, potentially, updates to the installed base.",
+    exceptions: "Not yet defined; the proposal is open for comment.",
+    matters: "Unlike R1, this would reach hardware already in service through its update path, turning an authorization risk into an operational one.",
+  },
+  R2: {
+    what: "Reported plan to deny new FCC authorizations to optical transceiver models from Chinese producers at 3.2T and above.",
+    targets: "Chinese producers of optical modules. The scenario defaults to ownership; the Broadened branch also counts production location.",
+    covers: "New transceiver models at 3.2T, phasing in through 2028–29; 800G and 1.6T are untouched in the base case.",
+    where: "New FCC equipment authorizations.",
+    exceptions: "Reportedly exempt if at least 65% of BOM value is US-sourced. A straddling uncertainty range yields Monitor, not Clear.",
+    matters: "This is the scenario's central risk and its weakest evidence: one press report, with no FCC text. It falls on the 2028–29 build waves that adopt 3.2T.",
+  },
+  "R2-LIST": {
+    what: "Rumored addition of the four largest Chinese optical-module makers to the Covered List.",
+    targets: "InnoLight, Eoptolink, Dongshan Precision and TFC, plus subsidiaries and affiliates.",
+    covers: "Their modules as finished devices, and, through R1, any device containing their optical engines.",
+    where: "New FCC equipment authorizations.",
+    exceptions: "Existing authorizations.",
+    matters: "Would turn a generation-specific rule into a supplier-wide one, and would reach co-packaged switches through the component rule.",
+  },
+  R3: {
+    what: "Bill that would bar federal national security systems from using optics made by InnoLight or Eoptolink.",
+    targets: "InnoLight, Eoptolink, their subsidiaries and affiliates, and entities later designated by War or Commerce.",
+    covers: "Optical transceivers and equipment containing them.",
+    where: "Procurement and use in federal national security systems.",
+    exceptions: "Waiver authority is expected but unconfirmed, so the model doesn't assume one.",
+    matters: "Bites only after a five-year transition, but it argues for a separately sourced optics pool in any hall serving federal customers.",
+  },
+  R4: {
+    what: "InnoLight's listing as a Chinese military company bars DoD from contracting with it and, a year later, from buying its goods.",
+    targets: "InnoLight and listed subsidiaries; the model also follows affiliates.",
+    covers: "Any product in which the listed entity appears in the supply path.",
+    where: "DoD direct contracting (from 30 June 2026) and DoD procurement of goods (from 30 June 2027).",
+    exceptions: "None modeled.",
+    matters: "Already in force. Any hall serving DoD customers that sources from an InnoLight-path supplier is exposed today.",
+  },
+  R5: {
+    what: "Foreign-produced consumer-grade routers can't obtain new FCC authorization.",
+    targets: "Routers produced outside the United States.",
+    covers: "Consumer-grade routers. Enterprise and data-center routing equipment is likely out of scope.",
+    where: "New FCC equipment authorizations.",
+    exceptions: "DoW/DHS Conditional Approval for up to 18 months; the model warns six months before expiry.",
+    matters: "A small line item for branch and remote-site kits, but expiring approvals become calendar risk for re-ordering.",
+  },
+  R6: {
+    what: "Foreign-produced connected power inverters can't obtain new FCC authorization.",
+    targets: "Connected inverters produced outside the United States.",
+    covers: "Network-connected power conversion, as used in on-site battery storage and solar.",
+    where: "New FCC equipment authorizations.",
+    exceptions: "Domestic end products (US-made with at least 65% US content, rising to 75% in 2029), and Conditional Approvals.",
+    matters: "Already in force. On-site storage designs relying on new foreign inverter models need a domestic alternative.",
+  },
+  RA1: {
+    what: "A license is needed to supply significant computing volume to tenants whose ultimate parent is headquartered in a country of concern.",
+    targets: "Tenants whose ultimate parent is headquartered in China, Russia, Iran or another listed country.",
+    covers: "IaaS compute provided from overseas data centers using advanced US chips.",
+    where: "Remote access to compute, above a significant-volume threshold.",
+    exceptions: "Usage below the threshold. Because the threshold is still a placeholder, below-threshold tenants show Monitor, not Clear.",
+    matters: "Makes tenant KYC a design requirement: operators need ultimate-parent data and per-tenant usage metering.",
+  },
+  RA2: {
+    what: "A license is needed to export advanced chips to companies headquartered in five elevated-diversion-risk countries.",
+    targets: "Companies headquartered in Indonesia, Malaysia, Singapore, Thailand or Brazil.",
+    covers: "Advanced AI chips and the servers built on them.",
+    where: "Export licensing.",
+    exceptions: "A validated end-user authorization, if granted.",
+    matters: "Siting and operator domicile now drive chip procurement timelines across Southeast Asia.",
+  },
+  RA3: {
+    what: "Existing chip licensing applies worldwide to China-headquartered firms and their subsidiaries.",
+    targets: "Firms headquartered in China and their subsidiaries, wherever incorporated.",
+    covers: "Advanced AI chips.",
+    where: "Export licensing.",
+    exceptions: "None modeled.",
+    matters: "Closes the offshore-subsidiary route; the operator's ultimate parent matters, not its local registration.",
+  },
+  RA4: {
+    what: "License applications must name IaaS remote end users whose parent is headquartered in a listed country.",
+    targets: "Applicants for advanced-chip export licenses.",
+    covers: "The content of the application, including the consignee's KYC procedures.",
+    where: "Export license applications.",
+    exceptions: "Not applicable; this rule changes what must be disclosed, not whether a license is needed.",
+    matters: "Tenant identities become part of the licensing record, so tenant screening must happen before procurement.",
+  },
+  RA5: {
+    what: "Branch assumption: Megaspeed and its affiliates are added to the Entity List.",
+    targets: "Megaspeed International and every entity linked to it by ownership or affiliation.",
+    covers: "All items subject to US export controls.",
+    where: "Any transaction involving a listed party.",
+    exceptions: "None.",
+    matters: "Any line whose supply path, or any tenant whose ownership chain, passes through a Megaspeed-linked node is blocked.",
+  },
+  RA6: {
+    what: "Commerce can impose a license requirement on a named item or party by direct notice, which may be oral.",
+    targets: "Whatever item or party the notice names.",
+    covers: "Any item subject to US export controls.",
+    where: "From the date of the notice.",
+    exceptions: "None.",
+    matters: "Unschedulable risk. It is modeled as a discrete event on the timeline rather than a dated rule.",
+  },
+};

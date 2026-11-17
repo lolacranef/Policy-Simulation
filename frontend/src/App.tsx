@@ -11,7 +11,7 @@ import { BUCKETS, bucketOf, monthLabel } from "./ui/shared";
 import { BRANCH_PLAIN, SCENARIO_PLAIN } from "./ui/plain";
 import { Guilloche } from "./ui/ornament";
 import {
-  EvidenceView, LeversView, MatrixView, Overview, TenantsView, TimelineView, WordsView,
+  EvidenceView, LeversView, MatrixView, Overview, RulesView, TenantsView, TimelineView, WordsView,
   type Model, type PresetLever, type TabId, type TourStep,
 } from "./ui/views";
 
@@ -20,6 +20,7 @@ const MONTHS = monthRange("2026-10-01", "2033-12-01");
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "overview", label: "Overview" },
+  { id: "rules", label: "Rules" },
   { id: "matrix", label: "Exposure matrix" },
   { id: "timeline", label: "Timeline" },
   { id: "levers", label: "Mitigations" },
@@ -153,6 +154,7 @@ export default function App() {
 
       <main>
         {tab === "overview" && <Overview m={model} tour={tour} />}
+        {tab === "rules" && <RulesView m={model} />}
         {tab === "matrix" && <MatrixView m={model} />}
         {tab === "timeline" && <TimelineView m={model} series={core.series} onCursor={(d) => { setCursor(MONTHS.indexOf(d)); setCursorOn(true); }} />}
         {tab === "levers" && <LeversView m={model} presets={PRESETS} active={levers} toggle={(id, on) => setLevers((l) => (on ? [...l, id] : l.filter((x) => x !== id)))} />}

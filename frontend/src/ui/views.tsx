@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { ActiveRule } from "../engine/branches";
 import type { SupplyGraph } from "../engine/graph";
 import type { LeverReport } from "../engine/levers";
@@ -7,11 +7,11 @@ import type { BuildWave, DateStr, EvidenceGrade, Exposure, ProductCategory, Rule
 import { DeltaBars, ExposureOverTime, Swimlanes, WaveBars, type MonthCounts } from "./charts";
 import { Guilloche, Rule } from "./ornament";
 import {
-  CATEGORY_HELP, CATEGORY_PLAIN, CONTEXT_PLAIN, country, FLAG_PLAIN, LEGAL_PLAIN, RULE_PLAIN, RULE_SHORT, SCENARIO_PLAIN, SEGMENT_PLAIN, sureness,
+  BRANCH_PLAIN, CATEGORY_HELP, CATEGORY_PLAIN, CONTEXT_PLAIN, country, FLAG_PLAIN, LEGAL_PLAIN, RULE_EXPLAINED, RULE_PLAIN, RULE_SHORT, SCENARIO_PLAIN, SEGMENT_PLAIN, sureness,
 } from "./plain";
 import { BUCKETS, BUCKET_LABEL, bucketOf, CATEGORY_LABEL, Chip, monthLabel } from "./shared";
 
-export type TabId = "overview" | "matrix" | "timeline" | "levers" | "tenants" | "evidence" | "words";
+export type TabId = "overview" | "rules" | "matrix" | "timeline" | "levers" | "tenants" | "evidence" | "words";
 
 export interface Model {
   input: EvalInput;
@@ -302,7 +302,7 @@ function HitView({ h, m, sources }: { h: RuleHit; m: Model; sources: Map<string,
   const s = sureness(h.evidence);
   return (
     <div className="hit">
-      <div className="hit-h"><span className="rule-tag">{h.rule_id}</span><b>{RULE_SHORT[h.rule_id] ?? inst?.name}</b></div>
+      <button className="hit-h linklike" onClick={() => openRule(m, h.rule_id)} title="Open this rule on the Rules page"><span className="rule-tag">{h.rule_id}</span><b>{RULE_SHORT[h.rule_id] ?? inst?.name}</b><span className="arrow">→</span></button>
       <Chip status={h.status} />
       <p>{RULE_PLAIN[h.rule_id] ?? ""}</p>
       {h.path.length > 1 && (
@@ -394,6 +394,7 @@ export function TimelineView({ m, series, onCursor }: { m: Model; series: MonthC
                   <dt>Instrument</dt><dd>{ar.instrument.name}</dd>
                   <dt>Confidence</dt><dd>{ar.rule.confidence_note}</dd>
                 </dl>
+                <button className="btn" onClick={() => openRule(m, ar.rule.id)}>Read the full rule</button>
               </div>
             ) : <p className="muted">Select a lane to read the rule text, its effective date and transition, likelihood basis and confidence note.</p>}
           </aside>
@@ -600,6 +601,120 @@ export function WordsView() {
         <dl className="glossary">
           {WORDS.map(([w, d]) => <div key={w}><dt>{w}</dt><dd>{d}</dd></div>)}
         </dl>
+      </div>
+    </>
+  );
+}
+
+// ================================================================ Rules
+
+/** Rule to scroll to when the Rules page opens. */
+export const sessionRule: { current: string | null } = { current: null };
+export function openRule(m: Model, id: string) { sessionRule.current = id; m.go("rules"); }
+
+type Maturity = "ALL" | "ENACTED" | "PENDING" | "UNCONFIRMED";
+const MATURITY: { id: Maturity; label: string }[] = [
+  { id: "ALL", label: "All rules" },
+  { id: "ENACTED", label: "Enacted" },
+  { id: "PENDING", label: "Proposed or introduced" },
+  { id: "UNCONFIRMED", label: "Reported or rumored" },
+];
+const maturityOf = (st: string): Maturity => (st === "ENACTED" ? "ENACTED" : st === "PROPOSED" || st === "INTRODUCED" ? "PENDING" : "UNCONFIRMED");
+
+export function RulesView({ m }: { m: Model }) {
+  const [filter, setFilter] = useState<Maturity>("ALL");
+  const [flash, setFlash] = useState<string | null>(null);
+  useEffect(() => {
+    const id = sessionRule.current;
+    sessionRule.current = null;
+    if (!id) return;
+    setFlash(id);
+    requestAnimationFrame(() => document.getElementById(`rule-${id}`)?.scrollIntoView({ block: "start" }));
+  }, []);
+  const sources = new Map<string, Source>();
+  for (const b of m.bundles) for (const i of b.intel_items) for (const x of i.sources) sources.set(x.id, x);
+
+  return (
+    <>
+      <PageHead kicker="Rules" title="What each rule does">
+        <p>Every rule in the loaded scenarios, set out in the same structure: what it restricts, who it targets, what it covers, the transaction it bites on, when it takes effect under the selected branch, its exceptions, and why it matters for a data-center build. The last line of each card shows which positions it is affecting right now.</p>
+      </PageHead>
+      <div className="wrap view">
+        <section className="howto">
+          <div><span className="label">How to read a rule</span><p>A rule bites only when four tests pass together. The <b>transaction</b> must be in scope, such as a new FCC authorization or DoD procurement. The <b>date</b> must be on or after the rule takes effect. The <b>product</b> must be in scope. And a <b>target</b> must appear somewhere on the part's supplier or ownership path. Exceptions are then applied, and the most severe surviving outcome becomes the cell's status.</p></div>
+          <div className="seg" role="group" aria-label="Filter by legal maturity">
+            {MATURITY.map((f) => <button key={f.id} aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>{f.label}</button>)}
+          </div>
+        </section>
+        {m.bundles.length === 0 && <section className="card"><p className="muted">Load a scenario in the bar above to see its rules.</p></section>}
+        {m.bundles.map((b) => {
+          const branchId = m.input.scenarios.find((x) => x.bundle.scenario.id === b.scenario.id)?.branch_id ?? "";
+          const rules = b.scenario.rules.map((e) => ({ entry: e, rule: b.rules.find((r) => r.id === e.rule_id)!, inst: b.instruments.find((i) => i.rules.includes(e.rule_id)) }))
+            .filter((r) => r.rule && r.inst && (filter === "ALL" || maturityOf(r.inst.legal_status) === filter));
+          return (
+            <section key={b.scenario.id} className="rulegroup">
+              <header className="rulegroup-h">
+                <h2>{SCENARIO_PLAIN[b.scenario.id]?.name ?? b.scenario.name}</h2>
+                <p>{SCENARIO_PLAIN[b.scenario.id]?.text} Branch: <b>{BRANCH_PLAIN[branchId]?.name ?? branchId}</b>. {BRANCH_PLAIN[branchId]?.text}</p>
+              </header>
+              {rules.length === 0 && <p className="muted">No rules in this scenario match the filter.</p>}
+              <div className="rulecards">
+                {rules.map(({ entry, rule, inst }) => {
+                  const ex = RULE_EXPLAINED[rule.id];
+                  const active = m.rules.find((a) => a.rule.id === rule.id);
+                  const eff = active?.rule.timing.effective_date ?? null;
+                  const ctxDates = Object.entries(active?.rule.timing.context_effective_dates ?? {});
+                  const trans = active?.rule.timing.transition_years;
+                  const affected = m.exposures.filter((e) => e.hits.some((h) => h.rule_id === rule.id && h.status !== "CLEAR"));
+                  const srcIds = [...new Set(inst!.status_history.map((h) => h.source_id))];
+                  return (
+                    <article key={rule.id} id={`rule-${rule.id}`} className={`rulefull ${flash === rule.id ? "flash" : ""}`}>
+                      <header className="rulefull-h">
+                        <span className="rule-tag">{rule.id}</span>
+                        <h3>{RULE_SHORT[rule.id] ?? inst!.name}</h3>
+                        <span className={`legal legal-${inst!.legal_status.toLowerCase()}`}>{LEGAL_PLAIN[inst!.legal_status]}</span>
+                        {!inst!.primary_source_available && <span className="nosrc">No primary source</span>}
+                        <span className="likely">Likelihood {Math.round((active?.likelihood ?? entry.likelihood) * 100)}%</span>
+                      </header>
+                      <p className="rulefull-what">{ex?.what ?? RULE_PLAIN[rule.id]}</p>
+                      {ex && (
+                        <dl className="facts">
+                          <div><dt>Targets</dt><dd>{ex.targets}</dd></div>
+                          <div><dt>Covers</dt><dd>{ex.covers}</dd></div>
+                          <div><dt>Bites on</dt><dd>{ex.where}</dd></div>
+                          <div><dt>Takes effect</dt><dd>{!active ? <span className="muted">Not active in this branch.</span>
+                            : ctxDates.length ? ctxDates.map(([c, d]) => <span key={c} className="block">{monthLabel(d as string)}: {CONTEXT_PLAIN[c as keyof typeof CONTEXT_PLAIN]}</span>)
+                            : eff ? <>{monthLabel(eff)}{trans ? <>; full effect after a {trans}-year transition</> : null}</> : <span className="muted">No effective date in this branch.</span>}</dd></div>
+                          <div><dt>Exceptions</dt><dd>{ex.exceptions}</dd></div>
+                          <div className="wide"><dt>Why it matters</dt><dd>{ex.matters}</dd></div>
+                        </dl>
+                      )}
+                      <div className="affects">
+                        <span className="label">Currently affecting</span>
+                        {affected.length === 0 ? <span className="muted small">No positions under the selected branches and as-of date.</span> : (
+                          <div className="affect-list">
+                            {affected.map((e) => {
+                              const h = e.hits.find((x) => x.rule_id === rule.id && x.status !== "CLEAR")!;
+                              return (
+                                <button key={e.key} className="affect" onClick={() => { m.select(e.key); m.go(e.row_kind === "TENANT" ? "tenants" : "matrix"); }}>
+                                  <b>{e.bom_line_id ?? e.tenant_id}</b> · {e.build_wave_id} <Chip status={h.status} />
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                      <footer className="rulefull-f">
+                        <span>{inst!.name}</span>
+                        {srcIds.map((id) => { const x = sources.get(id); return x ? <a key={id} href={x.url} target="_blank" rel="noreferrer">{x.publisher} ({x.reliability}{x.credibility})</a> : null; })}
+                      </footer>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
       </div>
     </>
   );
