@@ -40,7 +40,7 @@ export function WaveBars({ waves, exposures, onPick }: { waves: BuildWave[]; exp
                 const seg = (
                   <rect key={b} x={x} y={y} width={bw} height={barH} rx={2} fill={COLOR[b]}
                     onMouseMove={(e) => setTip({ x: e.nativeEvent.offsetX + 12, y: e.nativeEvent.offsetY - 10,
-                      body: <><b>{r.w.id} · {BUCKET_LABEL[b]}</b><br />{n} of {r.total} parts and customers</> })}
+                      body: <><b>{r.w.id} · {BUCKET_LABEL[b]}</b><br />{n} of {r.total} positions</> })}
                     onMouseLeave={() => setTip(null)} />
                 );
                 x += bw + 2;
@@ -87,7 +87,7 @@ export function ExposureOverTime({ series, cursor, onPick }: { series: MonthCoun
               onMouseMove={(e) => setTip({ x: e.nativeEvent.offsetX + 12, y: e.nativeEvent.offsetY - 10, body: <>
                 <b>{monthLabel(s.date)}</b><br />
                 {shown.map((b) => <span key={b} className="tiprow"><i className={`sw sw-${b}`} />{BUCKET_LABEL[b]} <b>{s.counts[b]}</b></span>)}
-                <span className="tiphint">Click to check this month</span></> })}
+                <span className="tiphint">Select to set the as-of date</span></> })}
               onMouseLeave={() => setTip(null)}>
               <rect x={x - 1} y={top} width={step} height={plotH} fill="transparent" />
               {shown.map((b) => {
@@ -108,7 +108,7 @@ export function ExposureOverTime({ series, cursor, onPick }: { series: MonthCoun
         })}
         {cursor && series.findIndex((s) => s.date === cursor) >= 0 && (() => {
           const x = left + series.findIndex((s) => s.date === cursor) * step + step / 2;
-          return <g><line x1={x} x2={x} y1={top - 4} y2={top + plotH} className="cursor" /><text x={x + 4} y={top + 4} className="ax-cursor">checking</text></g>;
+          return <g><line x1={x} x2={x} y1={top - 4} y2={top + plotH} className="cursor" /><text x={x + 4} y={top + 4} className="ax-cursor">as of</text></g>;
         })()}
       </svg>
       <Tooltip tip={tip} />
@@ -143,11 +143,11 @@ export function Swimlanes({ rules, start, end, cursor, onPickRule }: {
   return (
     <div className="chart" ref={ref}>
       <div className="legend">
-        <span><i className="sw sw-lane" />Official rule</span>
-        <span><i className="sw sw-hatch" />Proposed, or a bill</span>
-        <span><i className="sw sw-sparse" />News report or rumor</span>
-        <span><i className="sw sw-dash" />Waiting period</span>
-        <span><i className="sw sw-dot" />Something happened</span>
+        <span><i className="sw sw-lane" />Enacted</span>
+        <span><i className="sw sw-hatch" />Proposed or introduced</span>
+        <span><i className="sw sw-sparse" />Reported or rumored</span>
+        <span><i className="sw sw-dash" />Transition period</span>
+        <span><i className="sw sw-dot" />Status change</span>
       </div>
       <svg width={width} height={h} role="img" aria-label="When each rule takes effect">
         <defs>
@@ -163,8 +163,8 @@ export function Swimlanes({ rules, start, end, cursor, onPickRule }: {
           const y = top + i * rowH;
           const st = ar.instrument.legal_status;
           const showTip = (e: RME) => setTip({ x: e.nativeEvent.offsetX + 12, y: e.nativeEvent.offsetY - 10, body: <>
-            <b>{RULE_SHORT[ar.rule.id] ?? ar.instrument.name}</b><br />{LEGAL_PLAIN[st]} · chance it happens: {Math.round(ar.likelihood * 100)}%<br />
-            {eff ? <>Starts {monthLabel(eff)}{full ? <>, really bites {monthLabel(full)}</> : null}</> : <>No start date in this story</>}</> });
+            <b>{RULE_SHORT[ar.rule.id] ?? ar.instrument.name}</b><br />{LEGAL_PLAIN[st]} · likelihood {Math.round(ar.likelihood * 100)}%<br />
+            {eff ? <>Effective {monthLabel(eff)}{full ? <>; full effect {monthLabel(full)}</> : null}</> : <>No effective date in this branch</>}</> });
           return (
             <g key={ar.rule.id} className="clickable" onClick={() => onPickRule(ar.rule.id)} onMouseMove={showTip} onMouseLeave={() => setTip(null)}>
               <rect x={0} y={y} width={width} height={rowH - 2} fill="transparent" />
@@ -177,7 +177,7 @@ export function Swimlanes({ rules, start, end, cursor, onPickRule }: {
               </>}
               {ctxStarts.map((d) => <line key={d} x1={x(d)} x2={x(d)} y1={y + 3} y2={y + 25} className="tick" />)}
               {ar.instrument.status_history.map((s) => <circle key={s.date + s.status} cx={x(s.date)} cy={y + 14} r={4.5} className="dot" />)}
-              {!eff && <text x={x("2027-04-01")} y={y + 18} className="ax-dim">no start date in this story</text>}
+              {!eff && <text x={x("2027-04-01")} y={y + 18} className="ax-dim">no effective date in this branch</text>}
             </g>
           );
         })}
@@ -202,7 +202,7 @@ export function DeltaBars({ rows }: { rows: { id: string; delta: number }[] }) {
   const h = rows.length * rowH + 22;
   return (
     <div className="chart" ref={ref}>
-      <div className="legend"><span><i className="sw sw-clear" />Less risk</span><span><i className="sw sw-block" />More risk</span></div>
+      <div className="legend"><span><i className="sw sw-clear" />Reduced risk</span><span><i className="sw sw-block" />Increased risk</span></div>
       <svg width={width} height={h} role="img" aria-label="Change in weighted risk by wave">
         <line x1={mid} x2={mid} y1={0} y2={h - 18} className="zero" />
         <text x={mid} y={h - 4} textAnchor="middle" className="ax">0</text>
@@ -211,7 +211,7 @@ export function DeltaBars({ rows }: { rows: { id: string; delta: number }[] }) {
           const len = (Math.abs(r.delta) / max) * half;
           const x0 = r.delta < 0 ? mid - len : mid;
           return (
-            <g key={r.id} onMouseMove={(e) => setTip({ x: e.nativeEvent.offsetX + 12, y: e.nativeEvent.offsetY - 10, body: <><b>{r.id}</b><br />Change in risk score: {r.delta > 0 ? "+" : ""}{r.delta.toFixed(2)}</> })}
+            <g key={r.id} onMouseMove={(e) => setTip({ x: e.nativeEvent.offsetX + 12, y: e.nativeEvent.offsetY - 10, body: <><b>{r.id}</b><br />Δ weighted risk {r.delta > 0 ? "+" : ""}{r.delta.toFixed(2)}</> })}
               onMouseLeave={() => setTip(null)}>
               <text x={0} y={y + 15} className="ax-strong">{r.id}</text>
               {r.delta !== 0 && <rect x={x0} y={y + 3} width={Math.max(2, len)} height={16} rx={2} fill={r.delta < 0 ? "var(--c-clear)" : "var(--c-block)"} />}

@@ -1,131 +1,131 @@
-// Plain-language labels (aimed at a 5th-grade reader). Technical terms stay available under "More detail".
+// Display copy for a graduate-level audience: precise terms of art, with the engine's codes available under "Technical detail".
 import type { Context, EvidenceGrade, Flag, LegalStatus, ProductCategory, Segment, Status } from "../model/types";
 
 export const STATUS_PLAIN: Record<Status, string> = {
-  CLEAR: "OK",
-  WATCH: "Keep an eye on",
-  APPROVAL_EXPIRING: "Permission running out",
-  AT_RISK: "Could be affected",
-  LICENSE_REQUIRED: "Needs a permit",
-  LICENSE_REQUIRED_TENANT: "Customer needs a permit",
-  BLOCKED_DOD: "Not allowed for the military",
-  BLOCKED_FEDERAL: "Not allowed for government",
-  BLOCKED_EXPORT: "Can't be shipped",
-  BLOCKED_NEW_AUTH: "Can't get US approval",
+  CLEAR: "Clear",
+  WATCH: "Monitor",
+  APPROVAL_EXPIRING: "Conditional Approval expiring",
+  AT_RISK: "Exposed",
+  LICENSE_REQUIRED: "License required",
+  LICENSE_REQUIRED_TENANT: "Tenant license required",
+  BLOCKED_DOD: "Barred: DoD",
+  BLOCKED_FEDERAL: "Barred: federal NSS",
+  BLOCKED_EXPORT: "Export prohibited",
+  BLOCKED_NEW_AUTH: "Barred: FCC authorization",
 };
 
 export const CATEGORY_PLAIN: Record<ProductCategory, string> = {
-  OPTICAL_TRANSCEIVER: "Fiber-optic plugs",
+  OPTICAL_TRANSCEIVER: "Optical transceivers",
   SWITCH: "Network switches",
-  SERVER: "AI computers",
-  ROUTER_CONSUMER: "Internet routers",
-  ROUTER_ENTERPRISE: "Business routers",
-  POWER_INVERTER_CONNECTED: "Battery power converters",
-  NIC: "Network cards",
-  BMC: "Control chips",
-  PSU: "Power supplies",
-  OTHER: "Other parts",
+  SERVER: "GPU servers",
+  ROUTER_CONSUMER: "Consumer-grade routers",
+  ROUTER_ENTERPRISE: "Enterprise routers",
+  POWER_INVERTER_CONNECTED: "Connected power inverters",
+  NIC: "Network interface cards",
+  BMC: "Baseboard management controllers",
+  PSU: "Power supply units",
+  OTHER: "Other",
 };
 
 export const CATEGORY_HELP: Partial<Record<ProductCategory, string>> = {
-  OPTICAL_TRANSCEIVER: "They turn computer signals into light so data can travel through glass cables.",
-  SWITCH: "They connect thousands of computers so they can talk to each other.",
-  SERVER: "The powerful computers that run artificial intelligence.",
-  ROUTER_CONSUMER: "Small routers used at remote offices.",
-  POWER_INVERTER_CONNECTED: "They connect batteries and solar panels to the building's power.",
+  OPTICAL_TRANSCEIVER: "Pluggable or co-packaged electro-optical modules; Chinese vendors hold roughly 60% of datacom revenue.",
+  SWITCH: "Leaf, spine and co-packaged-optics switches. Brand is irrelevant under FCC 26-50; the producer of each logic-bearing component governs.",
+  SERVER: "Accelerated compute nodes; the export-control object of the BIS remote-access rule.",
+  ROUTER_CONSUMER: "Branch and remote-site kits within the scope of the DA 26-278 Covered List entry.",
+  POWER_INVERTER_CONNECTED: "On-site storage and solar power conversion within the scope of DA 26-786.",
 };
 
 export const SEGMENT_PLAIN: Record<Segment, string> = {
-  COMMERCIAL: "businesses",
-  FEDERAL_NSS: "government security",
-  DOD: "the military",
-  MIXED: "businesses and government",
+  COMMERCIAL: "commercial",
+  FEDERAL_NSS: "federal national security systems",
+  DOD: "Department of Defense",
+  MIXED: "mixed commercial and federal",
 };
 
 export const COUNTRY: Record<string, string> = {
   USA: "United States", CHN: "China", MYS: "Malaysia", IDN: "Indonesia", SGP: "Singapore", THA: "Thailand", TWN: "Taiwan",
   VNM: "Vietnam", JPN: "Japan", RUS: "Russia", IRN: "Iran", BRA: "Brazil", PRK: "North Korea",
 };
-export const country = (c: string) => COUNTRY[c] ?? (c || "unknown");
+export const country = (c: string) => COUNTRY[c] ?? (c || "unresolved");
 
 export const CONTEXT_PLAIN: Record<Context, string> = {
-  NEW_FCC_AUTHORIZATION: "getting US approval to sell a new device",
-  IMPORT_MARKETING: "bringing a device into the US to sell",
-  FEDERAL_NSS_PROCUREMENT: "use in government security systems",
-  DOD_CONTRACTING: "contracts with the military",
-  DOD_PROCUREMENT_GOODS: "products bought by the military",
-  FIRMWARE_UPDATES: "software updates",
-  ALL: "everything",
-  EXPORT_LICENSE_CHIPS: "shipping top AI chips",
-  REMOTE_ACCESS_IAAS: "renting computer power to customers",
-  IS_INFORMED_NOTICE: "a direct government notice",
+  NEW_FCC_AUTHORIZATION: "new FCC equipment authorization",
+  IMPORT_MARKETING: "importation and marketing",
+  FEDERAL_NSS_PROCUREMENT: "federal national security system procurement",
+  DOD_CONTRACTING: "DoD direct contracting",
+  DOD_PROCUREMENT_GOODS: "DoD procurement of goods",
+  FIRMWARE_UPDATES: "software and firmware updates to the installed base",
+  ALL: "all transactions (Entity List)",
+  EXPORT_LICENSE_CHIPS: "export licensing of advanced computing items",
+  REMOTE_ACCESS_IAAS: "IaaS remote access",
+  IS_INFORMED_NOTICE: "\"is-informed\" notice",
 };
 
 export const LEGAL_PLAIN: Record<LegalStatus, string> = {
-  ENACTED: "Official rule",
+  ENACTED: "Enacted",
   PROPOSED: "Proposed",
-  INTRODUCED: "A bill in Congress",
-  REPORTED: "Reported in the news",
-  RUMORED: "A rumor",
-  WITHDRAWN: "Dropped",
+  INTRODUCED: "Introduced",
+  REPORTED: "Reported",
+  RUMORED: "Rumored",
+  WITHDRAWN: "Withdrawn",
 };
 
 export const FLAG_PLAIN: Record<Flag, string> = {
-  RECENT_OWNERSHIP_CHANGE: "Owner changed recently",
-  OUT_OF_JURISDICTION: "US rule, building abroad",
-  DISCLOSURE_REQUIRED: "Must be reported",
-  ASSUMED_CARVE_OUT: "Based on a guess",
-  OFFBOARDED: "Customer removed",
+  RECENT_OWNERSHIP_CHANGE: "Recent change of control",
+  OUT_OF_JURISDICTION: "Outside FCC jurisdiction",
+  DISCLOSURE_REQUIRED: "Disclosure required",
+  ASSUMED_CARVE_OUT: "Assumed carve-out",
+  OFFBOARDED: "Offboarded",
 };
 
 export const RULE_SHORT: Record<string, string> = {
-  R1: "Banned-parts rule", "R1-FW": "Software ban idea", R2: "Fiber-plug ban (news)", "R2-LIST": "Plug makers banned (rumor)",
-  R3: "Senate bill S.5548", R4: "Military company list", R5: "Foreign routers rule", R6: "Foreign power converters rule",
-  RA1: "Computer-rental permit", RA2: "Chip permit: 5 countries", RA3: "Chip permit: China-owned", RA4: "List your customers",
-  RA5: "Megaspeed ban (what if)", RA6: "Surprise notices",
+  R1: "FCC 26-50 component rule", "R1-FW": "Third FNPRM (firmware)", R2: "Reported transceiver draft", "R2-LIST": "Optics makers on Covered List",
+  R3: "S.5548", R4: "Section 1260H list", R5: "DA 26-278 (routers)", R6: "DA 26-786 (inverters)",
+  RA1: "BIS IFR: remote access", RA2: "BIS IFR: smuggling-risk HQ", RA3: "BIS guidance: China-HQ firms", RA4: "IaaS end-user disclosure",
+  RA5: "Entity List: Megaspeed", RA6: "\"Is-informed\" notices",
 };
 
 export const RULE_PLAIN: Record<string, string> = {
-  R1: "A new device can't get US approval if one of its \"brain\" chips comes from a company on the government's banned list.",
-  "R1-FW": "An idea being discussed: also ban software from those companies. That would reach devices people already own.",
-  R2: "Reported in the news, not official yet: new Chinese-made fiber-optic plugs at the fastest speed (3.2T) couldn't get US approval, unless at least 65% of their value is American.",
-  "R2-LIST": "A rumor: four big Chinese makers of fiber-optic plugs get added to the banned list.",
-  R3: "A bill in Congress: government security systems couldn't use plugs from InnoLight or Eoptolink, after a five-year wait.",
-  R4: "The military can't sign contracts with InnoLight (from June 2026) or buy its products (from June 2027).",
-  R5: "New foreign-made small routers can't get US approval, unless they get special permission that lasts up to 18 months.",
-  R6: "New foreign-made \"smart\" battery power converters can't get US approval, unless they are made in America.",
-  RA1: "Data centers in other countries need a permit to rent lots of computer power to companies owned from China, Russia or Iran.",
-  RA2: "Companies based in Indonesia, Malaysia, Singapore, Thailand or Brazil need a permit to buy top AI chips.",
-  RA3: "Selling top AI chips to companies owned from China needs a permit anywhere in the world.",
-  RA4: "When asking for a chip permit, a company must list its customers that are owned from China, Russia or Iran.",
-  RA5: "What if the government bans a company called Megaspeed, and everyone connected to it?",
-  RA6: "The government can name one product or customer and require a permit, starting that same day.",
+  R1: "Bars new FCC equipment authorizations for any device containing a logic-bearing hardware component produced by a Covered List entity. Effective 13 October 2026; existing authorizations are unaffected, and the brand of the finished device is immaterial.",
+  "R1-FW": "Proposed in the Third FNPRM: extends the bar to software and firmware from Covered List entities, which would reach the installed base through updates. Adoption and timing are unknown and are set by branch.",
+  R2: "Reported by Reuters from unnamed sources; no FCC text exists. Would bar new authorizations for transceiver models from Chinese producers at 3.2T and above, exempting modules with at least 65% US-sourced BOM value, a figure that mirrors the domestic end product threshold.",
+  "R2-LIST": "Rumored Covered List designation of InnoLight, Eoptolink, Dongshan Precision and TFC, together with affiliates. Would trigger the R1 component bar for any device containing their optical engines.",
+  R3: "Introduced 24 September 2026 and referred to HSGAC. Would prohibit federal national security systems from using optics from InnoLight, Eoptolink, their subsidiaries and affiliates, and later designees, after a five-year transition.",
+  R4: "InnoLight was added to the Section 1260H list on 8 June 2026. DoD direct contracting is barred from 30 June 2026 and procurement of the entity's goods from 30 June 2027.",
+  R5: "Covered List entry for foreign-produced consumer-grade routers (23 March 2026). New authorizations are barred absent a DoW/DHS Conditional Approval of up to 18 months. Enterprise routing equipment is likely out of scope.",
+  R6: "Covered List entry for foreign-produced connected power inverters (28 July 2026), with carve-outs for domestic end products and Conditional Approvals.",
+  RA1: "Licensing requirement on advanced-chip sales to overseas data centers that provide significant computing volume to tenants whose ultimate parent is headquartered in a country of concern. The volume threshold is a placeholder pending the Federal Register text.",
+  RA2: "Licensing requirement on exports of advanced chips to companies headquartered in Indonesia, Malaysia, Singapore, Thailand or Brazil, designated as elevated diversion risk. Effective 90 days from issuance.",
+  RA3: "May 2026 guidance: the November 2023 licensing requirement applies worldwide to China-headquartered firms and their subsidiaries.",
+  RA4: "Since January 2026, license applications must disclose IaaS remote end users whose parent is headquartered in a listed country, along with the consignee's KYC procedures. Affects application content, not license necessity.",
+  RA5: "Branch assumption: Megaspeed and its affiliates are added to the Entity List, consistent with the position Treasury attributes to several agencies. Not listed as of the intelligence date.",
+  RA6: "Discretionary authority to impose a license requirement on a named item or party by notice, which may be oral. Modeled as discrete timeline events.",
 };
 
 export const BRANCH_PLAIN: Record<string, { name: string; text: string }> = {
-  "as-reported": { name: "As the news says", text: "The fiber-plug ban starts in January 2027, with the 65% American exception. The Senate bill passes in mid-2027." },
-  delayed: { name: "Delayed a year", text: "The fiber-plug ban starts a year later, in January 2028. The Senate bill never passes." },
-  broadened: { name: "Made stricter", text: "The ban also covers slower 1.6T plugs, with no exception. Four plug makers go on the banned list, and the software ban starts in 2027." },
-  dropped: { name: "Never happens", text: "None of the reported or proposed rules happen. Only today's official rules apply. This is the starting point." },
-  "as-issued": { name: "As written", text: "The new chip rules start on 14 February 2027, 90 days after they were announced." },
-  "megaspeed-listed": { name: "Megaspeed banned", text: "Megaspeed and every company connected to it are banned from 1 March 2027." },
-  tightened: { name: "Stricter limit", text: "The \"lots of computer power\" limit is set very low, so even small customers need a permit." },
-  "rolled-back": { name: "Cancelled", text: "The new permit rules are cancelled." },
+  "as-reported": { name: "As reported", text: "R2 effective 1 January 2027 with the 65% US-content carve-out; S.5548 enacted mid-2027." },
+  delayed: { name: "Delayed 12 months", text: "R2 effective 1 January 2028; S.5548 not enacted." },
+  broadened: { name: "Broadened", text: "R2 extends to 1.6T without a carve-out and under either definition of Chinese; the four optics makers are designated; the firmware rule takes effect July 2027." },
+  dropped: { name: "Dropped", text: "Only enacted instruments apply: the present-day exposure floor." },
+  "as-issued": { name: "As issued", text: "IFR effective 14 February 2027, 90 days after issuance." },
+  "megaspeed-listed": { name: "Megaspeed listed", text: "Megaspeed and affiliates added to the Entity List, 1 March 2027." },
+  tightened: { name: "Tightened threshold", text: "The significant-volume threshold is set at 50,000 GPU-hours per month, capturing most multi-tenant clouds in the region." },
+  "rolled-back": { name: "Rolled back", text: "The remote-access and smuggling-risk licensing requirements are withdrawn." },
 };
 
 export const SCENARIO_PLAIN: Record<string, { name: string; text: string }> = {
-  "SCN-OPTICS-2026": { name: "Story 1 · Fiber-optic parts", text: "New US rules about parts made by Chinese companies." },
-  "SCN-REMOTE-ACCESS-2026": { name: "Story 2 · Renting out computers", text: "New US rules about who can use AI computers abroad." },
+  "SCN-OPTICS-2026": { name: "Scenario 1 · Optics & Covered List", text: "FCC, congressional and DoW instruments targeting Chinese optical-module supply, 2026." },
+  "SCN-REMOTE-ACCESS-2026": { name: "Scenario 2 · Remote access", text: "The November 2026 BIS interim final rule on IaaS access to advanced compute." },
 };
 
-/** How sure are we, in words. Uses the same confidence number the engine computes. */
+/** Confidence in words, from the engine's weakest-link confidence score. */
 export function sureness(g: EvidenceGrade): { label: string; level: 1 | 2 | 3 | 4; why: string } {
   const c = g.confidence;
   const level = c >= 0.75 ? 4 : c >= 0.5 ? 3 : c >= 0.25 ? 2 : 1;
-  const label = ["", "A guess", "Not very sure", "Fairly sure", "Very sure"][level];
+  const label = ["", "Speculative", "Low confidence", "Moderate confidence", "High confidence"][level];
   const why = g.no_primary_source
-    ? `This comes from ${LEGAL_PLAIN[g.legal_status].toLowerCase()}. There is no official document yet.`
-    : g.legal_status === "ENACTED" ? "This is an official rule with a published document."
-    : `This is ${LEGAL_PLAIN[g.legal_status].toLowerCase()}, so it may still change.`;
+    ? `The instrument is ${LEGAL_PLAIN[g.legal_status].toLowerCase()} with no primary source; the assessment rests on secondary reporting.`
+    : g.legal_status === "ENACTED" ? "The instrument is enacted and documented in a primary source."
+    : `The instrument is ${LEGAL_PLAIN[g.legal_status].toLowerCase()} and its terms may change before adoption.`;
   return { label, level: level as 1 | 2 | 3 | 4, why };
 }

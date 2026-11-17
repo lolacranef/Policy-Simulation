@@ -76,35 +76,37 @@ export function Overview({ m, tour }: { m: Model; tour: TourStep[] }) {
           <h1 className="display hero-brand">Chokepoint</h1>
           <h2 className="display hero-title">If tomorrow's rules arrived today,<br />what could we still build?</h2>
           <p className="hero-lede">
-            A data center is a building full of computers. Those computers are built from parts made all over the world.
-            New government rules can stop some of those parts from being bought or used. This tool lets you test a rule
-            <em> before</em> it happens, and see which parts and which buildings would have trouble.
+            Data-center build plans typically meet supply-chain regulation only once a rule is final and hardware is already on order.
+            Chokepoint reverses that sequence. It codifies regulatory intelligence at any stage of maturity, from a leaked draft to an
+            enacted order, and evaluates it against a bill of materials, its supplier and ownership graph, and a phased deployment
+            schedule. Every result carries the provenance and confidence of the evidence <em>behind</em> it.
           </p>
           <div className="hero-cta">
-            <button className="btn primary" onClick={tour[0].run}>Take the 3-minute tour</button>
-            <button className="btn" onClick={() => m.go("matrix")}>Check the parts</button>
+            <button className="btn primary" onClick={tour[0].run}>Begin the guided walkthrough</button>
+            <button className="btn" onClick={() => m.go("matrix")}>Open the exposure matrix</button>
           </div>
         </div>
       </section>
 
       <div className="wrap view">
         <section className="steps" aria-label="How it works">
-          <div><span className="step-n">1</span><h3>Pick a story</h3><p>Choose a "what if" story in the bar above, like a rule that was only reported in the news.</p></div>
-          <div><span className="step-n">2</span><h3>Check every part</h3><p>The tool checks each part, in each building, against each rule, on the day it matters.</p></div>
-          <div><span className="step-n">3</span><h3>Find a fix</h3><p>Try changes, like a different supplier, and see what they cost and how much they help.</p></div>
+          <div><span className="step-n">1</span><h3>Codify the intelligence</h3><p>Select a scenario and branch. Each encodes instruments by legal maturity (enacted, proposed, reported, rumored) with an assigned likelihood.</p></div>
+          <div><span className="step-n">2</span><h3>Evaluate the supply graph</h3><p>Every BOM line in every build wave is tested against each active rule on the relevant date, traversing component, ownership and affiliate edges.</p></div>
+          <div><span className="step-n">3</span><h3>Test mitigations</h3><p>Apply sourcing, architecture and contractual levers and compare the resulting changes in exposure, cost and schedule.</p></div>
         </section>
 
         <Rule />
 
         <section className="answer">
           <div>
-            <span className="kicker">The answer right now</span>
-            <h2 className="display">{rows.length ? `${counts.block} of ${rows.length} are not allowed` : "No story loaded"}</h2>
+            <span className="kicker">Current assessment</span>
+            <h2 className="display">{rows.length ? `${counts.block} of ${rows.length} positions barred` : "No scenario loaded"}</h2>
             <p className="lede">
-              {rows.length === 0 ? "Turn on a story in the bar above to see results." : <>
-                Under <b>{m.branchNames.join(" and ")}</b>, {counts.block} parts or customers are not allowed and {counts.lic} need a permit.{" "}
-                {first && <>The first problem appears in <b>{monthLabel(first.date)}</b>, in building {first.build_wave_id}. </>}
-                {worst && worst[1] > 0 && <>The building with the most trouble is <b>{worst[0]} · {waveName(m, worst[0])}</b>.</>}
+              {rows.length === 0 ? "Load a scenario in the bar above to evaluate exposure." : <>
+                Under the <b>{m.branchNames.join(" and ")}</b> branches, {counts.block} BOM-line or tenant positions are barred and {counts.lic} require
+                a license; {counts.watch} warrant monitoring.{" "}
+                {first && <>Exposure first materializes in <b>{monthLabel(first.date)}</b> ({first.build_wave_id}). </>}
+                {worst && worst[1] > 0 && <>Aggregate likelihood-weighted risk is highest in <b>{worst[0]} · {waveName(m, worst[0])}</b>.</>}
               </>}
             </p>
           </div>
@@ -120,11 +122,11 @@ export function Overview({ m, tour }: { m: Model; tour: TourStep[] }) {
 
         <div className="grid-2">
           <section className="card">
-            <header className="card-h"><h2>Which buildings have trouble?</h2><p>Each bar is one building. Click a bar to see its parts.</p></header>
+            <header className="card-h"><h2>Exposure by build wave</h2><p>Status distribution of BOM lines and tenants in each wave. Select a wave to open it in the matrix.</p></header>
             <WaveBars waves={m.input.waves} exposures={rows} onPick={(id) => { sessionWave.current = id; m.go("matrix"); }} />
           </section>
           <section className="card">
-            <header className="card-h"><h2>Guided tour</h2><p>Five short stops. Each button sets things up for you.</p></header>
+            <header className="card-h"><h2>Guided walkthrough</h2><p>Five reproducible demonstrations drawn from the acceptance cases.</p></header>
             <ol className="tour">
               {tour.map((s, i) => (
                 <li key={i}>
@@ -138,15 +140,15 @@ export function Overview({ m, tour }: { m: Model; tour: TourStep[] }) {
         </div>
 
         <section className="card">
-          <header className="card-h"><h2>The biggest problems</h2><p>The most serious first. Click one to see why.</p></header>
-          {top.length === 0 ? <p className="muted">Nothing has trouble in this story.</p> : (
+          <header className="card-h"><h2>Highest-priority exposures</h2><p>Ranked by severity, then by likelihood-weighted risk. Select one for its derivation.</p></header>
+          {top.length === 0 ? <p className="muted">No exposure under the selected branches.</p> : (
             <div className="toplist">
               {top.map((e) => {
                 const lead = e.hits.find((h) => h.status === e.status);
                 const subject = e.bom_line_id ? m.input.dataset.parts[e.bom_line_id] : null;
                 return (
                   <button key={e.key} className="toprow" onClick={() => { m.select(e.key); m.go(e.row_kind === "TENANT" ? "tenants" : "matrix"); }}>
-                    <span><b>{subject ? CATEGORY_PLAIN[subject.category] : "Customer"}</b><span className="code">{e.bom_line_id ?? e.tenant_id}</span></span>
+                    <span><b>{subject ? CATEGORY_PLAIN[subject.category] : "Tenant"}</b><span className="code">{e.bom_line_id ?? e.tenant_id}</span></span>
                     <span className="muted">{waveName(m, e.build_wave_id)} · {monthLabel(e.date)}</span>
                     <Chip status={e.status} />
                     <span className="muted">{lead ? RULE_SHORT[lead.rule_id] ?? lead.rule_id : ""}</span>
@@ -181,28 +183,28 @@ export function MatrixView({ m }: { m: Model }) {
 
   return (
     <>
-      <PageHead kicker="Parts check" title="Can we buy each part?">
-        <p>Each <b>row</b> is a kind of part. Each <b>column</b> is a building we plan to fill with computers. The colored label says whether that part is allowed for that building. Under it, the bars show how sure we are. Click any label to see why.</p>
+      <PageHead kicker="Exposure matrix" title="BOM line × build wave">
+        <p>Each cell evaluates one BOM line in one build wave against all active rules at the as-of date, by default the wave's procurement date. The status is the most severe rule outcome after carve-outs. The indicator beneath it reports evidentiary confidence: the weakest link across legal maturity, source grade and supplier-path evidence. Select a cell for its full derivation.</p>
       </PageHead>
       <div className={`wrap view ${m.selected ? "with-side" : ""}`}>
         <div className="main-col">
           <div className="filters">
-            <div className="seg" role="group" aria-label="Show building">
-              <button aria-pressed={wave === "ALL"} onClick={() => setWave("ALL")}>All buildings</button>
+            <div className="seg" role="group" aria-label="Wave filter">
+              <button aria-pressed={wave === "ALL"} onClick={() => setWave("ALL")}>All waves</button>
               {roots.map((id) => <button key={id} aria-pressed={wave === id} onClick={() => setWave(id)}>{id}</button>)}
             </div>
-            <label className="toggle"><input type="checkbox" id="only-exposed" checked={onlyExposed} onChange={(e) => setOnlyExposed(e.target.checked)} />Only show parts with problems</label>
+            <label className="toggle"><input type="checkbox" id="only-exposed" checked={onlyExposed} onChange={(e) => setOnlyExposed(e.target.checked)} />Exposed lines only</label>
           </div>
           <div className="matrix">
             <table>
               <thead>
                 <tr>
-                  <th scope="col">Part</th>
+                  <th scope="col">BOM line</th>
                   {waves.map((w) => <WaveHead key={w.id} w={w} />)}
                 </tr>
               </thead>
               <tbody>
-                {ids.length === 0 && <tr><td colSpan={waves.length + 1}><p className="muted pad">No parts match these filters.</p></td></tr>}
+                {ids.length === 0 && <tr><td colSpan={waves.length + 1}><p className="muted pad">No lines match these filters.</p></td></tr>}
                 {ids.map((id) => {
                   const p = parts[id];
                   const head = p.category !== lastCat ? (
@@ -222,7 +224,7 @@ export function MatrixView({ m }: { m: Model }) {
               </tbody>
             </table>
           </div>
-          <p className="footnote">A dash (—) means that building doesn't use that part. Part names like "Supplier A" are made-up examples.</p>
+          <p className="footnote">An em dash indicates the line is not in that wave's BOM. Suppliers, SKUs, costs and value shares are illustrative placeholders.</p>
         </div>
         {m.selected && <Explainer m={m} />}
       </div>
@@ -235,22 +237,22 @@ function WaveHead({ w }: { w: BuildWave }) {
     <th scope="col">
       <span className="wid">{w.id}</span>
       <span className="wname">{w.name}</span>
-      <span className="wmeta">Buying {monthLabel(w.procurement_date)}</span>
-      <span className="wmeta">For {SEGMENT_PLAIN[w.customer_segment]}</span>
-      <span className="wmeta">In {country(w.site_country)}</span>
+      <span className="wmeta">Procurement {monthLabel(w.procurement_date)}</span>
+      <span className="wmeta">Segment: {SEGMENT_PLAIN[w.customer_segment]}</span>
+      <span className="wmeta">Site: {country(w.site_country)} · {w.optics_generation_gbps / 1000}T {w.optics_form === "CPO" ? "CPO" : w.optics_form.toLowerCase()}</span>
     </th>
   );
 }
 
 function Cell({ ex, m }: { ex: Exposure | undefined; m: Model }) {
-  if (!ex) return <td><span className="empty" aria-label="Not used in this building">—</span></td>;
+  if (!ex) return <td><span className="empty" aria-label="Not in this wave">—</span></td>;
   const lead = ex.hits.find((h) => h.status === ex.status);
   return (
     <td>
       <button className="cellbtn" aria-pressed={m.selected === ex.key} onClick={() => m.select(ex.key)}>
         <Chip status={ex.status} />
-        {ex.status !== "CLEAR" && lead && <Sureness g={lead.evidence} />}
-        {ex.status === "CLEAR" && ex.carve_out_applied && <span className="small muted">OK because of an exception</span>}
+        {ex.status !== "CLEAR" && lead && <><Sureness g={lead.evidence} /><span className="code">{lead.evidence.label}</span></>}
+        {ex.status === "CLEAR" && ex.carve_out_applied && <span className="small muted">Clear under carve-out</span>}
         {ex.flags.length > 0 && <span className="flags">{ex.flags.map((f) => <span className="flag" key={f}>{FLAG_PLAIN[f]}</span>)}</span>}
       </button>
     </td>
@@ -269,9 +271,9 @@ export function Explainer({ m }: { m: Model }) {
   if (!ex) {
     return (
       <aside className="side" aria-label="Why?">
-        <span className="kicker">Why?</span>
-        <h3 className="display">Pick a label</h3>
-        <p className="muted">Click any colored label to see which rule caused it, the chain of companies behind it, and where the information came from.</p>
+        <span className="kicker">Derivation</span>
+        <h3 className="display">Select a cell</h3>
+        <p className="muted">Select any status to see the triggering rules, the supplier and ownership path, carve-out logic and the sources behind the confidence grade.</p>
       </aside>
     );
   }
@@ -281,14 +283,14 @@ export function Explainer({ m }: { m: Model }) {
   return (
     <aside className="side" aria-label="Why?">
       <div className="side-h">
-        <span className="kicker">Why? · {waveName(m, ex.build_wave_id)} · {monthLabel(ex.date)}</span>
+        <span className="kicker">Derivation · {waveName(m, ex.build_wave_id)} · as of {monthLabel(ex.date)}</span>
         <button className="x" onClick={() => m.select(null)} aria-label="Close">×</button>
       </div>
       <h3 className="display">{part ? CATEGORY_PLAIN[part.category] : m.graph.name(subject)}</h3>
       <div className="muted"><span className="code">{subject}</span> {part ? `· ${part.brand}` : ""}</div>
       <Chip status={ex.status} />
       {ex.flags.includes("RECENT_OWNERSHIP_CHANGE") && <OwnershipTimeline m={m} tenantId={ex.tenant_id!} />}
-      {hits.length === 0 && <p>No rule affects this {ex.row_kind === "TENANT" ? "customer" : "part"} on this date, so it's OK.</p>}
+      {hits.length === 0 && <p>No active rule reaches this {ex.row_kind === "TENANT" ? "tenant" : "line"} at the as-of date.</p>}
       {hits.map((h, i) => <HitView key={i} h={h} m={m} sources={sources} />)}
     </aside>
   );
@@ -305,29 +307,29 @@ function HitView({ h, m, sources }: { h: RuleHit; m: Model; sources: Map<string,
       <p>{RULE_PLAIN[h.rule_id] ?? ""}</p>
       {h.path.length > 1 && (
         <>
-          <span className="label">How this part is connected</span>
+          <span className="label">Supplier and ownership path</span>
           <ol className="chain">{h.path.map((n, i) => <li key={i}>{m.graph.name(n)}</li>)}</ol>
         </>
       )}
-      {h.carve_out_applied && <><span className="label">Exception</span><p>{h.carve_out_applied}</p></>}
-      <span className="label">How sure are we?</span>
-      <p><Sureness g={h.evidence} /> {s.why} The chance this rule happens is about {Math.round(h.likelihood * 100)}%.</p>
-      <span className="label">Where this comes from</span>
+      {h.carve_out_applied && <><span className="label">Carve-out</span><p>{h.carve_out_applied}</p></>}
+      <span className="label">Confidence</span>
+      <p><Sureness g={h.evidence} /> <span className="code" style={{ display: "inline" }}>{h.evidence.label}</span><br />{s.why} Assigned likelihood: {Math.round(h.likelihood * 100)}%.</p>
+      <span className="label">Sources</span>
       <div className="sources">
         {srcIds.map((id) => {
           const x = sources.get(id);
           return x ? <span key={id}><a href={x.url} target="_blank" rel="noreferrer">{x.publisher}</a> <span className="muted small">· {monthLabel(x.date)}</span></span> : null;
         })}
-        {inst && !inst.primary_source_available && <span className="nosrc">No official document yet</span>}
+        {inst && !inst.primary_source_available && <span className="nosrc">No primary source</span>}
       </div>
       <details className="more">
-        <summary>More detail</summary>
+        <summary>Technical detail</summary>
         <dl className="kv">
-          <dt>Applies to</dt><dd>{CONTEXT_PLAIN[h.context]}</dd>
-          <dt>Evidence grade</dt><dd className="code">{h.evidence.label}</dd>
-          <dt>Risk score</dt><dd>{h.weighted_risk.toFixed(2)} (chance × seriousness × sureness)</dd>
+          <dt>Context</dt><dd>{CONTEXT_PLAIN[h.context]}</dd>
+          <dt>Instrument</dt><dd>{inst?.name}</dd>
+          <dt>Weighted risk</dt><dd>{h.weighted_risk.toFixed(2)} (likelihood × severity × confidence)</dd>
           {h.note && <><dt>Engine note</dt><dd>{h.note}</dd></>}
-          <dt>Path IDs</dt><dd className="code">{h.path.join(" → ")}</dd>
+          <dt>Node path</dt><dd className="code">{h.path.join(" → ")}</dd>
         </dl>
       </details>
     </div>
@@ -342,7 +344,7 @@ function OwnershipTimeline({ m, tenantId }: { m: Model; tenantId: string }) {
   const pos = (d: string) => `${Math.max(0, Math.min(100, ((Date.parse(d) - t0) / (t1 - t0)) * 100))}%`;
   return (
     <div className="own">
-      <span className="label">Who owned this customer</span>
+      <span className="label">Ownership history</span>
       <div className="own-track">
         {recs.map((r) => {
           const hq = m.input.dataset.entities[r.parent_node_id]?.country_of_incorporation ?? "";
@@ -358,7 +360,7 @@ function OwnershipTimeline({ m, tenantId }: { m: Model; tenantId: string }) {
       <div className="own-legend">
         {recs.map((r) => <span key={r.parent_node_id}>{r.from_date.slice(0, 4)}–{r.to_date ? r.to_date.slice(0, 4) : "now"}: {m.graph.name(r.parent_node_id)}</span>)}
       </div>
-      <p className="small muted">A recent change from an owner in China is a warning sign worth checking. On its own it doesn't break any rule.</p>
+      <p className="small muted">A change of control away from a country-of-concern parent within the 36-month lookback is flagged for analyst review. Whether control actually passed is an empirical question; the flag does not alter legal status.</p>
     </div>
   );
 }
@@ -371,13 +373,13 @@ export function TimelineView({ m, series, onCursor }: { m: Model; series: MonthC
   const entry = ar ? m.bundles.flatMap((b) => b.scenario.rules).find((r) => r.rule_id === ar.rule.id) : null;
   return (
     <>
-      <PageHead kicker="Timeline" title="When do the rules start?">
-        <p>Each line is one rule. The bar starts on the day the rule begins. A solid bar is an official rule. A striped bar is only proposed, or only in the news. Change the story in the bar above and watch the bars move.</p>
+      <PageHead kicker="Instrument timeline" title="When each instrument takes effect">
+        <p>Each lane shows a rule's effective date under the selected branches, encoded by legal maturity: solid for enacted, hatched for proposed or introduced, sparse hatching for reported or rumored. Dashed boxes mark statutory transition periods. Changing a branch shifts the lanes accordingly.</p>
       </PageHead>
       <div className="wrap view">
         <div className="grid-side">
           <section className="card">
-            <header className="card-h"><h2>The rules, year by year</h2><p>Click a rule to read about it.</p></header>
+            <header className="card-h"><h2>Rules by effective date</h2><p>Select a lane for rule text, likelihood basis and instrument.</p></header>
             <Swimlanes rules={m.rules} start="2026-01-01" end="2033-12-31" cursor={m.date} onPickRule={setFocus} />
           </section>
           <aside className="card">
@@ -387,16 +389,17 @@ export function TimelineView({ m, series, onCursor }: { m: Model; series: MonthC
                 <h3 className="display">{RULE_SHORT[ar.rule.id] ?? ar.instrument.name}</h3>
                 <p>{RULE_PLAIN[ar.rule.id]}</p>
                 <dl className="kv">
-                  <dt>Starts</dt><dd>{ar.rule.timing.effective_date ? monthLabel(ar.rule.timing.effective_date) : "No date in this story"}{ar.rule.timing.transition_years ? `, then a ${ar.rule.timing.transition_years}-year wait` : ""}</dd>
-                  <dt>Chance</dt><dd>About {Math.round(ar.likelihood * 100)}%{entry ? `. ${entry.likelihood_basis}` : ""}</dd>
-                  <dt>Official name</dt><dd>{ar.instrument.name}</dd>
+                  <dt>Effective</dt><dd>{ar.rule.timing.effective_date ? monthLabel(ar.rule.timing.effective_date) : "Not set in this branch"}{ar.rule.timing.transition_years ? `, with a ${ar.rule.timing.transition_years}-year transition` : ""}</dd>
+                  <dt>Likelihood</dt><dd>{Math.round(ar.likelihood * 100)}%{entry ? `. ${entry.likelihood_basis}` : ""}</dd>
+                  <dt>Instrument</dt><dd>{ar.instrument.name}</dd>
+                  <dt>Confidence</dt><dd>{ar.rule.confidence_note}</dd>
                 </dl>
               </div>
-            ) : <p className="muted">Click any rule on the left to read what it does, when it starts and how likely it is.</p>}
+            ) : <p className="muted">Select a lane to read the rule text, its effective date and transition, likelihood basis and confidence note.</p>}
           </aside>
         </div>
         <section className="card">
-          <header className="card-h"><h2>How many problems, month by month</h2><p>Each column checks every part and customer in that month. Click a month to check everything on that date.</p></header>
+          <header className="card-h"><h2>Exposure across the planning horizon</h2><p>Exposed positions when every wave is evaluated as of each month. Select a month to set the as-of date.</p></header>
           <ExposureOverTime series={series} cursor={m.date} onPick={onCursor} />
         </section>
       </div>
@@ -413,8 +416,8 @@ export function LeversView({ m, presets, active, toggle }: { m: Model; presets: 
   const totals = r ? r.waves.reduce((a, w) => ({ risk: a.risk + w.delta_risk, cost: a.cost + w.delta_cost_usd }), { risk: 0, cost: 0 }) : null;
   return (
     <>
-      <PageHead kicker="Ways to fix it" title="What could we do differently?">
-        <p>Turn on any of these ideas. Every page updates to show what would change. Below, you'll see how much each idea lowers the risk, and what it costs in money and time.</p>
+      <PageHead kicker="Mitigation levers" title="Design and sourcing responses">
+        <p>Apply any combination of levers. All views re-evaluate, and the comparison below is against the same branches with no levers applied. Assumed carve-outs, such as an anticipated Conditional Approval or VEU grant, are labelled as assumptions throughout.</p>
       </PageHead>
       <div className="wrap view">
         <div className="lever-grid">
@@ -429,17 +432,17 @@ export function LeversView({ m, presets, active, toggle }: { m: Model; presets: 
             );
           })}
         </div>
-        {!r ? <section className="card"><p className="muted">Turn on an idea above to see how it helps.</p></section> : (
+        {!r ? <section className="card"><p className="muted">Apply a lever to compare Δ exposure, Δ cost and Δ schedule by wave.</p></section> : (
           <div className="grid-2">
             <section className="card">
-              <header className="card-h"><h2>Does it lower the risk?</h2><p>Bars to the left mean less risk.</p></header>
+              <header className="card-h"><h2>Δ likelihood-weighted risk by wave</h2><p>Negative values indicate reduced exposure.</p></header>
               <DeltaBars rows={r.waves.map((w) => ({ id: w.wave_id, delta: w.delta_risk }))} />
             </section>
             <section className="card">
-              <header className="card-h"><h2>What does it cost?</h2>{totals && <p>Total: {usd(totals.cost)} and the risk score changes by {totals.risk.toFixed(2)}.</p>}</header>
+              <header className="card-h"><h2>Cost and schedule impact</h2>{totals && <p>Net Δ cost {usd(totals.cost)}; net Δ weighted risk {totals.risk.toFixed(2)}.</p>}</header>
               <div className="tablewrap">
                 <table className="plain">
-                  <thead><tr><th>Building</th><th>Extra money</th><th>Extra weeks</th><th>Worst result after</th></tr></thead>
+                  <thead><tr><th>Wave</th><th>Δ cost</th><th>Δ schedule (wk)</th><th>Worst status after</th></tr></thead>
                   <tbody>
                     {r.waves.map((w) => (
                       <tr key={w.wave_id}>
@@ -452,7 +455,7 @@ export function LeversView({ m, presets, active, toggle }: { m: Model; presets: 
                   </tbody>
                 </table>
               </div>
-              <span className="label">What we assumed</span>
+              <span className="label">Lever assumptions</span>
               <ul className="notes">{r.notes.map((n, i) => <li key={i}>{n}</li>)}</ul>
             </section>
           </div>
@@ -462,7 +465,7 @@ export function LeversView({ m, presets, active, toggle }: { m: Model; presets: 
   );
 }
 
-const usd = (v: number) => (v === 0 ? "$0" : `${v < 0 ? "−" : "+"}$${(Math.abs(v) / 1e6).toFixed(1)} million`);
+const usd = (v: number) => (v === 0 ? "$0" : `${v < 0 ? "−" : "+"}$${(Math.abs(v) / 1e6).toFixed(2)}M`);
 
 // ================================================================ Customers
 
@@ -470,15 +473,15 @@ export function TenantsView({ m }: { m: Model }) {
   const rows = m.exposures.filter((e) => e.row_kind === "TENANT");
   return (
     <>
-      <PageHead kicker="Customers" title="Who uses the computers?">
-        <p>Some data centers rent out their computers to other companies. A new rule says that if a customer is really owned by a company in China, Russia or Iran, and uses a lot of computer power, the data center needs a permit. So we check who really owns each customer. If we can't check, the answer can't be "OK".</p>
+      <PageHead kicker="Tenant screening" title="Remote-access exposure">
+        <p>The November 2026 BIS interim final rule conditions the provision of significant IaaS compute on the headquarters of each tenant's ultimate parent. Tenants are screened on ultimate-parent HQ, monthly GPU-hours against the significant-volume threshold, and KYC status. An unverified tenant cannot resolve to Clear, and ownership history within a 36-month lookback is surfaced for review.</p>
       </PageHead>
       <div className={`wrap view ${m.selected ? "with-side" : ""}`}>
         <div className="main-col">
-          {rows.length === 0 ? <section className="card"><p className="muted">Turn on Story 2 in the bar above to check customers.</p></section> : (
+          {rows.length === 0 ? <section className="card"><p className="muted">Load Scenario 2 in the bar above to screen tenants.</p></section> : (
             <div className="matrix">
               <table>
-                <thead><tr><th scope="col">Customer</th><th scope="col">Building</th><th scope="col">Real owner is in</th><th scope="col">Computer hours per month</th><th scope="col">Checked?</th><th scope="col">Result</th></tr></thead>
+                <thead><tr><th scope="col">Tenant</th><th scope="col">Wave</th><th scope="col">Ultimate parent HQ</th><th scope="col">GPU-hours / month</th><th scope="col">KYC</th><th scope="col">Status</th></tr></thead>
                 <tbody>
                   {rows.map((e) => {
                     const t = m.input.dataset.tenants[e.tenant_id!];
@@ -488,7 +491,7 @@ export function TenantsView({ m }: { m: Model }) {
                         <td className="txt">{waveName(m, e.build_wave_id)}</td>
                         <td className="txt">{country(t.ultimate_parent_hq)}</td>
                         <td className="txt num">{t.monthly_gpu_hours.toLocaleString("en-US")}</td>
-                        <td className="txt">{t.kyc_status === "VERIFIED" ? "Yes" : t.kyc_status === "PARTIAL" ? "Partly" : <span className="warn">Not yet</span>}</td>
+                        <td className="txt">{t.kyc_status === "VERIFIED" ? "Verified" : t.kyc_status === "PARTIAL" ? "Partial" : <span className="warn">Unverified</span>}</td>
                         <Cell ex={e} m={m} />
                       </tr>
                     );
@@ -497,7 +500,7 @@ export function TenantsView({ m }: { m: Model }) {
               </table>
             </div>
           )}
-          <p className="footnote">All customers here are made-up examples. The "lots of computer power" limit (250,000 hours a month) is a placeholder until the official rule text is read.</p>
+          <p className="footnote">Tenants are illustrative. The 250,000 GPU-hour monthly threshold is a placeholder pending the Federal Register text of the IFR.</p>
         </div>
         {m.selected && <Explainer m={m} />}
       </div>
@@ -512,12 +515,12 @@ export function EvidenceView({ m }: { m: Model }) {
   for (const b of m.bundles) for (const i of b.intel_items) for (const s of i.sources) sources.set(s.id, s);
   return (
     <>
-      <PageHead kicker="Sources" title="How do we know?">
-        <p>Not all information is equally strong. An official government document is very strong. A news story about a secret draft is weaker. A rumor is weakest. Every result in this tool is only as strong as its weakest piece of information.</p>
+      <PageHead kicker="Evidence and provenance" title="Source quality and legal maturity">
+        <p>Confidence propagates as a weakest-link function of three inputs: the instrument's legal maturity, its best available source, and each supplier or ownership edge on the triggering path. Sources are graded on a simplified Admiralty scale, reliability A–F and credibility 1–6. Secondary reporting of unpublished drafts is retained but never presented as primary.</p>
       </PageHead>
       <div className="wrap view">
         <section className="scale" aria-label="How sure scale">
-          {[["Very sure", 4, "An official rule with a published document."], ["Fairly sure", 3, "Official, but some facts come from summaries."], ["Not very sure", 2, "From news reports, or a bill that hasn't passed."], ["A guess", 1, "A rumor, or several weak links in a row."]].map(([l, n, d]) => (
+          {[["High confidence", 4, "Enacted instrument with a primary source and well-evidenced supplier links."], ["Moderate confidence", 3, "Enacted, but key facts rest on legal analysis or weaker supplier evidence."], ["Low confidence", 2, "Introduced or reported instruments, or press-only sourcing."], ["Speculative", 1, "Rumor, analyst inference, or several weak links compounded."]].map(([l, n, d]) => (
             <div key={l as string}>
               <span className="sure"><span className="sure-bars" aria-hidden="true">{[1, 2, 3, 4].map((i) => <i key={i} className={i <= (n as number) ? "on" : ""} />)}</span>{l}</span>
               <p>{d}</p>
@@ -529,16 +532,16 @@ export function EvidenceView({ m }: { m: Model }) {
             <header className="card-h"><h2>{SCENARIO_PLAIN[b.scenario.id]?.name ?? b.scenario.name}</h2><p>{SCENARIO_PLAIN[b.scenario.id]?.text}</p></header>
             <div className="tablewrap">
               <table className="plain">
-                <thead><tr><th>Rule</th><th>What kind of information</th><th>Where it comes from</th></tr></thead>
+                <thead><tr><th>Rule(s)</th><th>Legal maturity</th><th>Sources and grades</th></tr></thead>
                 <tbody>
                   {b.instruments.map((inst) => (
                     <tr key={inst.id}>
                       <td><b>{inst.rules.map((r) => RULE_SHORT[r] ?? r).join(", ")}</b><div className="small muted">{inst.name}</div></td>
-                      <td><span className={`legal legal-${inst.legal_status.toLowerCase()}`}>{LEGAL_PLAIN[inst.legal_status]}</span>{!inst.primary_source_available && <div className="nosrc">No official document yet</div>}</td>
+                      <td><span className={`legal legal-${inst.legal_status.toLowerCase()}`}>{LEGAL_PLAIN[inst.legal_status]}</span>{!inst.primary_source_available && <div className="nosrc">No primary source</div>}</td>
                       <td>
                         {[...new Set(inst.status_history.map((s) => s.source_id))].map((id) => {
                           const s = sources.get(id);
-                          return s ? <div key={id} className="src"><a href={s.url} target="_blank" rel="noreferrer">{s.publisher}</a> <span className="small muted">· {monthLabel(s.date)}</span><div className="small muted">{s.excerpt_note}</div></div> : null;
+                          return s ? <div key={id} className="src"><a href={s.url} target="_blank" rel="noreferrer">{s.publisher}</a> <span className="small muted">· {s.source_type.toLowerCase().replace("_", " ")} · {s.reliability}{s.credibility} · {monthLabel(s.date)}</span><div className="small muted">{s.excerpt_note}</div></div> : null;
                         })}
                       </td>
                     </tr>
@@ -547,7 +550,7 @@ export function EvidenceView({ m }: { m: Model }) {
               </table>
             </div>
             <div className="intel">
-              <span className="label">The original news and documents</span>
+              <span className="label">Underlying intelligence items</span>
               {b.intel_items.map((i) => (
                 <details key={i.id}>
                   <summary>{i.title} <span className="small muted">· {monthLabel(i.received_date)}</span></summary>
@@ -566,28 +569,32 @@ export function EvidenceView({ m }: { m: Model }) {
 // ================================================================ Words to know
 
 const WORDS: [string, string][] = [
-  ["Data center", "A building full of computers that store information and run programs, like AI."],
-  ["Building (build wave)", "A group of computers bought and set up at the same time, usually one hall of a data center. We call them W1 to W6."],
-  ["Part", "One kind of thing a building needs, like a fiber-optic plug or a network switch. Engineers call the full list a \"bill of materials\"."],
-  ["Supplier", "The company that makes a part, or a piece inside it."],
-  ["Owner (parent company)", "The company that owns a supplier. Some rules care about who owns a company, not just where its factory is."],
-  ["FCC", "The US agency that must approve electronic devices before they can be sold in America."],
-  ["Banned list (Covered List)", "The FCC's list of companies and products it considers a security risk."],
-  ["Bill", "An idea for a new law. It only becomes law if Congress passes it and the President signs it."],
-  ["Permit (license)", "Written permission from the government to sell or ship something."],
-  ["Exception", "A special case where a rule doesn't apply, like when most of a part's value is American."],
-  ["Story (scenario)", "A \"what if\" about the future. Each story has versions, like \"as the news says\" or \"never happens\"."],
-  ["How sure are we", "How strong the information is. Official documents are strong; news about a secret draft is weaker; rumors are weakest."],
-  ["Customer (tenant)", "A company that rents computer power from a data center instead of owning its own."],
-  ["Checking customers (KYC)", "Short for \"Know Your Customer\": finding out who really owns a customer before doing business with them."],
-  ["Risk score", "A number that combines how likely a rule is, how serious its effect is, and how sure we are. Bigger means more worry."],
+  ["Build wave", "A deployment phase with its own procurement date, energize date, customer segment and technology generation. The unit at which exposure is assessed."],
+  ["BOM line", "One part type in the bill of materials, with its SKU, FCC authorization history, US-content estimate and supplier tree."],
+  ["Logic-bearing component", "Under FCC 26-50, a hardware component that processes or controls data. Its producer, not the finished-device brand, determines Covered List exposure."],
+  ["Covered List", "The FCC's list of equipment and services deemed to pose an unacceptable national-security risk. Covered equipment cannot obtain new equipment authorizations."],
+  ["Equipment authorization", "FCC approval required before an RF device may be imported or marketed in the US. Rules restricting new authorizations leave existing grants in place."],
+  ["Conditional Approval", "A time-limited DoW/DHS determination, up to 18 months, permitting authorization of otherwise covered foreign-produced equipment."],
+  ["Domestic end product", "A product manufactured in the US whose domestic component cost exceeds a threshold: 65% through 2028, rising to 75% in 2029."],
+  ["Section 1260H list", "DoD's list of Chinese military companies. It bars direct contracting and, after a lag, procurement of listed entities' goods, including through affiliates."],
+  ["National security systems (NSS)", "Federal information systems whose function involves intelligence, cryptologic, military command or weapons activities. The procurement scope of S.5548."],
+  ["Interim final rule (IFR)", "A rule effective without prior notice and comment, with comments taken after issuance. The form of the November 2026 BIS remote-access rule."],
+  ["Ultimate parent HQ test", "Screening a counterparty by the headquarters of the top of its ownership chain rather than its place of incorporation or billing address."],
+  ["IaaS remote access", "Use of compute hosted by a provider. Export controls can reach it when advanced chips serve end users in countries of concern."],
+  ["KYC", "Know-your-customer due diligence: verifying a counterparty's identity and beneficial ownership."],
+  ["Validated end user (VEU)", "A BIS authorization that lets pre-approved facilities receive controlled items without individual licenses."],
+  ["Carve-out", "A condition under which a rule does not apply, such as a US-content threshold, an existing authorization or a Conditional Approval."],
+  ["Scenario and branch", "A scenario is a coherent set of instruments; branches are alternative trajectories for it (as reported, delayed, broadened, dropped)."],
+  ["Evidence grade", "A simplified Admiralty code: source reliability (A–F) and information credibility (1–6), combined with legal maturity on a weakest-link basis."],
+  ["Weighted risk", "Likelihood × severity × confidence. Used to rank exposures and compare levers; not a probability."],
+  ["As-of date", "The date at which rules are evaluated: either each wave's procurement date, or a single chosen date for every wave."],
 ];
 
 export function WordsView() {
   return (
     <>
-      <PageHead kicker="Words to know" title="A short glossary">
-        <p>The words this tool uses, explained simply.</p>
+      <PageHead kicker="Glossary" title="Terms of art">
+        <p>Definitions as used in the model. Where a term has a specific regulatory meaning, the model follows it.</p>
       </PageHead>
       <div className="wrap view">
         <dl className="glossary">

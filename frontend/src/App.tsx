@@ -19,31 +19,31 @@ const seed = loadSeed();
 const MONTHS = monthRange("2026-10-01", "2033-12-01");
 
 const TABS: { id: TabId; label: string }[] = [
-  { id: "overview", label: "Start here" },
-  { id: "matrix", label: "Parts check" },
+  { id: "overview", label: "Overview" },
+  { id: "matrix", label: "Exposure matrix" },
   { id: "timeline", label: "Timeline" },
-  { id: "levers", label: "Ways to fix it" },
-  { id: "tenants", label: "Customers" },
-  { id: "evidence", label: "Sources" },
-  { id: "words", label: "Words to know" },
+  { id: "levers", label: "Mitigations" },
+  { id: "tenants", label: "Tenant screening" },
+  { id: "evidence", label: "Evidence" },
+  { id: "words", label: "Glossary" },
 ];
 
 const PRESETS: (PresetLever & { lever: Lever })[] = [
-  { id: "usc", label: "Use more American pieces", models: "Put an American-made chip and laser inside Supplier A's fastest plug, to try to reach the 65% American exception.", detail: "RAISE_US_CONTENT",
+  { id: "usc", label: "Raise US content (Supplier A, 3.2T)", models: "Substitute a US-fabricated DSP and laser to approach the reported 65% US-BOM-value carve-out. The uncertainty band is propagated, so a straddling range resolves to Monitor.", detail: "RAISE_US_CONTENT",
     lever: { kind: "RAISE_US_CONTENT", line_id: "XCVR-A-3200", wave_id: "W3" } },
-  { id: "gen", label: "Stay one speed slower in W3", models: "Use 1.6T plugs instead of the fastest 3.2T ones, which the reported rule targets. Slower plugs use more of them.", detail: "SHIFT_GENERATION",
+  { id: "gen", label: "Defer the 3.2T transition in W3", models: "Hold W3 at 1.6T, below the reported generation threshold, accepting a port-count and power penalty.", detail: "SHIFT_GENERATION",
     lever: { kind: "SHIFT_GENERATION", wave_id: "W3", gbps: 1600 } },
-  { id: "pluggable", label: "Keep plugs removable in W4", models: "Don't build the light parts into the switch. Then one banned part can't block the whole switch.", detail: "CHANGE_OPTICS_FORM",
+  { id: "pluggable", label: "Pluggable rather than CPO in W4", models: "Keep optics modular so a designated optical-engine producer cannot block authorization of the whole switch under the component rule.", detail: "CHANGE_OPTICS_FORM",
     lever: { kind: "CHANGE_OPTICS_FORM", wave_id: "W4", form: "PLUGGABLE" } },
-  { id: "enclave", label: "A separate government section in W2", models: "Split off the 30% of W2 that serves government, and buy its parts from approved suppliers.", detail: "FEDERAL_ENCLAVE",
+  { id: "enclave", label: "Federal enclave in W2", models: "Partition the mixed hall and source a separate optics pool for the 30% federal share, re-sourcing any line exposed under 1260H or S.5548.", detail: "FEDERAL_ENCLAVE",
     lever: { kind: "FEDERAL_ENCLAVE", wave_id: "W2", federal_share: 0.3 } },
-  { id: "inv", label: "American-made power converters", models: "Swap the Chinese-made battery power converters for ones made in America.", detail: "SWAP_SUPPLIER",
+  { id: "inv", label: "Domestic connected inverters", models: "Replace foreign-produced BESS inverters with a domestic end product candidate to fall under the DA 26-786 carve-out.", detail: "SWAP_SUPPLIER",
     lever: { kind: "SWAP_SUPPLIER", line_id: "INV-BESS-1", alternate_id: "INV-BESS-US" } },
-  { id: "ca", label: "Renew the routers' permission", models: "Assume the routers get a new 18-month permission starting June 2027.", detail: "SEEK_CONDITIONAL_APPROVAL",
+  { id: "ca", label: "Renew router Conditional Approval", models: "Assume a further 18-month Conditional Approval from June 2027. Flagged as an assumption.", detail: "SEEK_CONDITIONAL_APPROVAL",
     lever: { kind: "SEEK_CONDITIONAL_APPROVAL", line_id: "RTR-EDGE-1", assumed_grant: "2027-06-01", term_months: 18 } },
-  { id: "cap", label: "Limit customer T4", models: "Only let customer T4 use 200,000 computer hours a month, under the limit.", detail: "TENANT_CAP",
+  { id: "cap", label: "Cap tenant T4", models: "Meter T4 at 200,000 GPU-hours per month, below the placeholder threshold. Resolves to Monitor, not Clear, while the threshold is unconfirmed.", detail: "TENANT_CAP",
     lever: { kind: "TENANT_CAP", tenant_id: "T4", max_gpu_hours: 200000 } },
-  { id: "veu", label: "Get approved as a trusted site (W5)", models: "Assume the Malaysia building is approved as a trusted buyer from March 2027.", detail: "APPLY_VEU",
+  { id: "veu", label: "Validated end user for W5", models: "Assume a data-center VEU authorization for the Johor campus from March 2027. Flagged as an assumption.", detail: "APPLY_VEU",
     lever: { kind: "APPLY_VEU", wave_id: "W5", assumed_approval_date: "2027-03-01" } },
 ];
 
@@ -103,15 +103,15 @@ export default function App() {
   };
 
   const tour: TourStep[] = [
-    { title: "Start with today", body: "Only official rules count. Some parts already have trouble, like the Chinese-made power converters.", cta: "Show today",
+    { title: "Establish the exposure floor", body: "Under the Dropped branch only enacted instruments apply. Inverter and 1260H exposure already exist.", cta: "Show the floor",
       run: () => { setOpticsOn(true); setOpticsBranch("dropped"); setLevers([]); setCursorOn(false); setSelected("W2|XCVR-A-1600"); go("matrix"); } },
-    { title: "Add the news report", body: "A rule reported in the news would block Supplier A's fastest plugs in W3 and W4. We're not very sure, because there's no official document.", cta: "Show the news",
+    { title: "Introduce the reported draft", body: "The reported 3.2T rule bars Supplier A in W3 and W4, graded REPORTED with no primary source.", cta: "Show the draft",
       run: () => { setOpticsBranch("as-reported"); setLevers([]); setCursorOn(false); setSelected("W3|XCVR-A-3200"); go("matrix"); } },
-    { title: "Try a fix", body: "Using American pieces makes the plug about 70% American. But we're not certain it passes 65%, so it becomes \"keep an eye on\", not \"OK\".", cta: "Try the fix",
+    { title: "Engineer US content", body: "A US DSP and laser lift the estimate to about 70%, but the range straddles 65%, so the line resolves to Monitor rather than Clear.", cta: "Apply the lever",
       run: () => { setOpticsBranch("as-reported"); setLevers(["usc"]); setCursorOn(false); go("levers"); } },
-    { title: "Move through time", body: "A Senate bill gives a five-year wait, so the government block in W4 only shows up from mid-2032.", cta: "Open the timeline",
+    { title: "Advance the as-of date", body: "S.5548's five-year transition means the federal NSS bar in W4 appears only from mid-2032.", cta: "Open the timeline",
       run: () => { setOpticsBranch("as-reported"); setCursorOn(true); setCursor(MONTHS.indexOf("2032-07-01")); setSelected("W4|XCVR-A-3200"); go("timeline"); } },
-    { title: "Meet the customers", body: "Customer T2 was owned by a Chinese company until 2024. That's a warning sign worth checking, not a broken rule.", cta: "See customers",
+    { title: "Screen the tenants", body: "T2 changed control away from a Chinese parent in 2024. The flag prompts review; it is not a legal finding.", cta: "Screen tenants",
       run: () => { setRemoteOn(true); setRemoteBranch("as-issued"); setCursorOn(false); setSelected("W5|tenant:T2"); go("tenants"); } },
   ];
 
@@ -124,7 +124,7 @@ export default function App() {
             <span>Chokepoint</span>
             <small>Find where new rules could choke your data-center supply chain</small>
           </a>
-          <span className="banner">Example data · for learning</span>
+          <span className="banner">Illustrative data · scenario planning</span>
         </div>
         <nav className="tabs wrap" aria-label="Sections">
           {TABS.map((t) => (
@@ -140,14 +140,14 @@ export default function App() {
           <div className="ctl ctl-date">
             <span className="ctl-label">As of</span>
             <div className="seg" role="group" aria-label="As of">
-              <button aria-pressed={!cursorOn} onClick={() => setCursorOn(false)} title="Check each building on the day its parts are bought">Buying day</button>
-              <button aria-pressed={cursorOn} onClick={() => setCursorOn(true)} title="Check everything on one month you choose">A month I pick</button>
+              <button aria-pressed={!cursorOn} onClick={() => setCursorOn(false)} title="Evaluate each wave at its own procurement date">Procurement date</button>
+              <button aria-pressed={cursorOn} onClick={() => setCursorOn(true)} title="Evaluate every wave at one chosen month">Fixed date</button>
             </div>
-            <input type="range" id="cursor" min={0} max={MONTHS.length - 1} value={cursor} aria-label="Month to check"
+            <input type="range" id="cursor" min={0} max={MONTHS.length - 1} value={cursor} aria-label="As-of month"
               onChange={(e) => { setCursor(Number(e.target.value)); setCursorOn(true); }} />
-            <span className="readout">{cursorOn ? monthLabel(MONTHS[cursor]) : "buying days"}</span>
+            <span className="readout">{cursorOn ? monthLabel(MONTHS[cursor]) : "per wave"}</span>
           </div>
-          {levers.length > 0 && <button className="lever-pill" onClick={() => go("levers")}>{levers.length} fix{levers.length > 1 ? "es" : ""} turned on</button>}
+          {levers.length > 0 && <button className="lever-pill" onClick={() => go("levers")}>{levers.length} lever{levers.length > 1 ? "s" : ""} applied</button>}
         </div>
       </div>
 
@@ -166,19 +166,19 @@ export default function App() {
         <div className="wrap foot-in">
           <div>
             <span className="foot-title">Chokepoint</span>
-            <p>A chokepoint is a narrow spot where one block can stop everything behind it. This teaching tool finds where new rules could do that to a data center's supply chain. It shows what could happen. It does not predict what will happen.</p>
+            <p>A chokepoint is a narrow spot where one block can stop everything behind it. This model locates where prospective regulation would do that to a data center's supply chain. It conditions on scenarios; it does not forecast policy.</p>
           </div>
           <div>
-            <span className="foot-h">Explore</span>
+            <span className="foot-h">Sections</span>
             {TABS.map((t) => <a key={t.id} href={`#${t.id}`} onClick={(e) => { e.preventDefault(); go(t.id); }}>{t.label}</a>)}
           </div>
           <div>
             <span className="foot-h">About the data</span>
-            <p>Suppliers, parts, prices and customers are made-up examples. Real company names appear only because public reports name them in rules. Students will replace the examples with traced data.</p>
+            <p>Suppliers, SKUs, costs, value shares and tenants are illustrative placeholders. Named firms appear only as rule targets drawn from public reporting. The import contract accepts Sayari-traced replacements without code changes.</p>
           </div>
           <div>
-            <span className="foot-h">Please note</span>
-            <p>This is for planning and learning. It is not legal advice.</p>
+            <span className="foot-h">Limitations</span>
+            <p>Scenario planning, not legal advice. Supplier capacity is not modeled, so rerouting understates price and lead-time shocks.</p>
           </div>
         </div>
       </footer>

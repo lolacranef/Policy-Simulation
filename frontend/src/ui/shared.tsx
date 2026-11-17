@@ -10,7 +10,7 @@ export const STATUS_LABEL: Record<Status, string> = {
 
 export type Bucket = "block" | "lic" | "watch" | "clear";
 export const BUCKETS: Bucket[] = ["block", "lic", "watch", "clear"];
-export const BUCKET_LABEL: Record<Bucket, string> = { block: "Not allowed", lic: "Needs a permit", watch: "Keep an eye on", clear: "OK" };
+export const BUCKET_LABEL: Record<Bucket, string> = { block: "Barred", lic: "License required", watch: "Monitor", clear: "Clear" };
 export const bucketOf = (s: Status): Bucket =>
   s.startsWith("BLOCKED") ? "block" : s.startsWith("LICENSE") ? "lic" : s === "CLEAR" ? "clear" : "watch";
 export const chipClass = (s: Status) =>
