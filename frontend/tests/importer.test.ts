@@ -21,7 +21,7 @@ describe("seed import (§5)", () => {
   it("writes the summary the spec asks for", () => {
     expect(r.summary.parts_loaded).toBe(21);
     expect(r.summary.nodes).toBeGreaterThan(30);
-    expect(r.summary.unresolved_owners).toContain("SEA-BROKER");
+    expect(r.summary.unresolved_owners).toContain("T3-PARENT");
     expect(r.summary.lines_without_evidence).toEqual([]);
   });
 

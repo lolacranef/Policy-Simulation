@@ -81,7 +81,7 @@ export const FLAG_PLAIN: Record<Flag, string> = {
 export const RULE_SHORT: Record<string, string> = {
   R1: "FCC 26-50 component rule", "R1-FW": "Third FNPRM (firmware)", R2: "Reported transceiver draft", "R2-LIST": "Optics makers on Covered List",
   R3: "S.5548", R4: "Section 1260H list", R5: "DA 26-278 (routers)", R6: "DA 26-786 (inverters)",
-  RA1: "BIS IFR: remote access", RA2: "BIS IFR: smuggling-risk HQ", RA3: "BIS guidance: China-HQ firms", RA4: "IaaS end-user disclosure",
+  RA1: "BIS IFR: remote access", RA2: "BIS IFR: diversion-risk HQ", RA3: "BIS guidance: China-HQ firms", RA4: "IaaS end-user disclosure",
   RA5: "Entity List: Megaspeed", RA6: "\"Is-informed\" notices",
 };
 
@@ -98,7 +98,7 @@ export const RULE_PLAIN: Record<string, string> = {
   RA2: "Licensing requirement on exports of advanced chips to companies headquartered in Indonesia, Malaysia, Singapore, Thailand or Brazil, designated as elevated diversion risk. Effective 90 days from issuance.",
   RA3: "May 2026 guidance: the November 2023 licensing requirement applies worldwide to China-headquartered firms and their subsidiaries.",
   RA4: "Since January 2026, license applications must disclose IaaS remote end users whose parent is headquartered in a listed country, along with the consignee's KYC procedures. Affects application content, not license necessity.",
-  RA5: "Branch assumption: Megaspeed and its affiliates are added to the Entity List, consistent with the position Treasury attributes to several agencies. Not listed as of the intelligence date.",
+  RA5: "Case assumption: Megaspeed and its affiliates are added to the Entity List, consistent with the position Treasury attributes to several agencies. Not listed as of the intelligence date.",
   RA6: "Discretionary authority to impose a license requirement on a named item or party by notice, which may be oral. Modeled as discrete timeline events.",
 };
 
@@ -106,11 +106,11 @@ export const BRANCH_PLAIN: Record<string, { name: string; text: string }> = {
   "as-reported": { name: "As reported", text: "R2 effective 1 January 2027 with the 65% US-content carve-out; S.5548 enacted mid-2027." },
   delayed: { name: "Delayed 12 months", text: "R2 effective 1 January 2028; S.5548 not enacted." },
   broadened: { name: "Broadened", text: "R2 extends to 1.6T without a carve-out and under either definition of Chinese; the four optics makers are designated; the firmware rule takes effect July 2027." },
-  dropped: { name: "Dropped", text: "Only enacted instruments apply: the present-day exposure floor." },
+  dropped: { name: "Dropped", text: "Only enacted instruments apply: the present-day baseline." },
   "as-issued": { name: "As issued", text: "IFR effective 14 February 2027, 90 days after issuance." },
   "megaspeed-listed": { name: "Megaspeed listed", text: "Megaspeed and affiliates added to the Entity List, 1 March 2027." },
   tightened: { name: "Tightened threshold", text: "The significant-volume threshold is set at 50,000 GPU-hours per month, capturing most multi-tenant clouds in the region." },
-  "rolled-back": { name: "Rolled back", text: "The remote-access and smuggling-risk licensing requirements are withdrawn." },
+  "rolled-back": { name: "Rolled back", text: "The remote-access and diversion-risk licensing requirements are withdrawn." },
 };
 
 export const SCENARIO_PLAIN: Record<string, { name: string; text: string }> = {
@@ -158,11 +158,11 @@ export const RULE_EXPLAINED: Record<string, RuleExplained> = {
   },
   R2: {
     what: "Reported plan to deny new FCC authorizations to optical transceiver models from Chinese producers at 3.2T and above.",
-    targets: "Chinese producers of optical modules. The scenario defaults to ownership; the Broadened branch also counts production location.",
+    targets: "Chinese producers of optical modules. The scenario defaults to ownership; the Broadened case also counts production location.",
     covers: "New transceiver models at 3.2T, phasing in through 2028–29; 800G and 1.6T are untouched in the base case.",
     where: "New FCC equipment authorizations.",
     exceptions: "Reportedly exempt if at least 65% of BOM value is US-sourced. A straddling uncertainty range yields Monitor, not Clear.",
-    matters: "This is the scenario's central risk and its weakest evidence: one press report, with no FCC text. It falls on the 2028–29 build waves that adopt 3.2T.",
+    matters: "This is the scenario's central risk and its weakest evidence: one press report, with no FCC text. It falls on the 2028–29 deployment phases that adopt 3.2T.",
   },
   "R2-LIST": {
     what: "Rumored addition of the four largest Chinese optical-module makers to the Covered List.",
@@ -178,7 +178,7 @@ export const RULE_EXPLAINED: Record<string, RuleExplained> = {
     covers: "Optical transceivers and equipment containing them.",
     where: "Procurement and use in federal national security systems.",
     exceptions: "Waiver authority is expected but unconfirmed, so the model doesn't assume one.",
-    matters: "Bites only after a five-year transition, but it argues for a separately sourced optics pool in any hall serving federal customers.",
+    matters: "Takes full effect only after a five-year transition, but it argues for a separately sourced optics pool in any hall serving federal customers.",
   },
   R4: {
     what: "InnoLight's listing as a Chinese military company bars DoD from contracting with it and, a year later, from buying its goods.",
@@ -237,7 +237,7 @@ export const RULE_EXPLAINED: Record<string, RuleExplained> = {
     matters: "Tenant identities become part of the licensing record, so tenant screening must happen before procurement.",
   },
   RA5: {
-    what: "Branch assumption: Megaspeed and its affiliates are added to the Entity List.",
+    what: "Case assumption: Megaspeed and its affiliates are added to the Entity List.",
     targets: "Megaspeed International and every entity linked to it by ownership or affiliation.",
     covers: "All items subject to US export controls.",
     where: "Any transaction involving a listed party.",
@@ -252,4 +252,52 @@ export const RULE_EXPLAINED: Record<string, RuleExplained> = {
     exceptions: "None.",
     matters: "Unschedulable risk. It is modeled as a discrete event on the timeline rather than a dated rule.",
   },
+};
+
+export interface ProductExplained { what: string; role: string; inside: string; regulators: string }
+
+export const PRODUCT_EXPLAINED: Partial<Record<ProductCategory, ProductExplained>> = {
+  OPTICAL_TRANSCEIVER: {
+    what: "Electro-optical modules that convert electrical signals to light and back, so data can travel between switches and servers over fiber. Named by aggregate speed: 800G, 1.6T and 3.2T, with each generation roughly doubling bandwidth per port.",
+    role: "An AI cluster needs several transceivers per accelerator; a single hall can consume tens of thousands. They are the most numerous network component and among the most supply-constrained.",
+    inside: "A digital signal processor (DSP, logic-bearing), lasers (EML or CW sources), a driver/TIA chip (logic-bearing) and the optical sub-assembly. The DSP is typically about a third of the bill of materials.",
+    regulators: "Chinese makers hold roughly 60% of datacom transceiver revenue. That concentration is what the reported FCC draft, S.5548 and the 1260H listing of InnoLight are aimed at.",
+  },
+  SWITCH: {
+    what: "Network switches connect servers into a fabric. Leaf (top-of-rack) switches connect servers; spine switches connect leaves. Co-packaged-optics (CPO) switches move the optical engines into the switch package itself.",
+    role: "Switch generation determines which transceivers a hall can use, and CPO changes optics from a replaceable plug-in into a permanent part of the switch.",
+    inside: "A switching ASIC (logic-bearing), a baseboard management controller (logic-bearing), power and cooling, assembled by a contract manufacturer.",
+    regulators: "Under FCC 26-50 the producer of each logic-bearing component, not the brand, decides Covered List exposure. With CPO, optics exposure becomes switch exposure.",
+  },
+  SERVER: {
+    what: "Accelerated compute nodes, typically eight GPUs on an HGX baseboard with CPUs, memory and networking.",
+    role: "The reason the data center exists, and by far its largest capital cost.",
+    inside: "GPUs (logic-bearing), a BMC (logic-bearing), CPUs and memory, assembled by an original design manufacturer in Taiwan.",
+    regulators: "Advanced GPUs are export-controlled. The BIS remote-access rule ties licensing to the operator's headquarters and to who uses the compute.",
+  },
+  ROUTER_CONSUMER: {
+    what: "Small consumer-grade routers used in branch offices, remote sites and out-of-band management kits.",
+    role: "A small cost line, but deployed widely and reordered often.",
+    inside: "A system-on-chip (logic-bearing), radios and firmware, mostly produced in Vietnam and China.",
+    regulators: "Covered List entry DA 26-278 bars new authorizations for foreign-produced consumer routers unless a time-limited Conditional Approval is in force.",
+  },
+  POWER_INVERTER_CONNECTED: {
+    what: "Network-connected power conversion systems that link on-site batteries or solar to the facility's electrical system.",
+    role: "Increasingly common as data centers add on-site storage for resilience and grid services.",
+    inside: "Power electronics plus a network-connected controller (logic-bearing) that can be managed remotely.",
+    regulators: "Covered List entry DA 26-786 bars new authorizations for foreign-produced connected inverters, with a carve-out for domestic end products.",
+  },
+};
+
+export const ROLE_PLAIN: Record<string, string> = {
+  dsp: "Digital signal processor",
+  laser: "Laser source",
+  tia_driver: "Driver / TIA",
+  asic: "Switch ASIC",
+  bmc: "Baseboard management controller",
+  gpu: "GPU accelerator",
+  substrate: "Substrate",
+  pcb: "Printed circuit board",
+  firmware: "Firmware",
+  other: "Channel / other",
 };

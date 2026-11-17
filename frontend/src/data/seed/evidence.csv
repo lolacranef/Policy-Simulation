@@ -1,6 +1,9 @@
 source_id,url,publisher,date,source_type,reliability,credibility,note
-EV-SEED,,Seed dataset (placeholder),2026-11-16,ANALYST_NOTE,B,2,Illustrative placeholder link for the demo; replace with a traced Sayari or trade record.
-EV-SEED-WEAK,,Seed dataset (placeholder),2026-11-16,ANALYST_NOTE,D,4,"Illustrative placeholder for a weak, unconfirmed link."
-EV-SEED-TENANT,,Seed dataset (placeholder),2026-11-16,ANALYST_NOTE,C,3,Illustrative tenant record; students replace it with a Sayari-traced tenant.
-EV-WILMERHALE-1260H,https://www.wilmerhale.com/en/insights/client-alerts/20260611-pentagon-adds-65-new-entities-to-the-1260h-list-of-chinese-military-companies,WilmerHale,2026-06-11,LEGAL_ANALYSIS,A,2,Reports InnoLight's June 2026 addition to the 1260H list.
-EV-SAYARI-MEGASPEED,https://graph.sayari.com/resource/entity/FN6-5HO_izVKgXRmQfy1jg,Sayari Graph,2026-11-16,PRIMARY,B,2,Corporate registry record for Megaspeed International Pte Ltd (Singapore).
+EV-SAYARI-OWN,https://graph.sayari.com,Sayari Graph (corporate registry records),2026-11-16,PRIMARY,B,2,Ownership or subsidiary relationship recorded in Sayari from corporate registry and filing sources.
+EV-SAYARI-INNOLIGHT-SZ,https://graph.sayari.com/resource/entity/-P8SBkbAMqpCWDkh5hV2NQ,Sayari Graph,2026-11-16,PRIMARY,B,2,Suzhou InnoLight (苏州旭创科技有限公司) is flagged as owned by a Section 1260H entity.
+EV-SAYARI-COHERENT-MY,https://graph.sayari.com/resource/entity/tBsHpChL0IJLz8P4EUydtg,Sayari Graph,2026-11-16,PRIMARY,B,2,Coherent Malaysia Sdn Bhd (Ipoh) recorded as a subsidiary of Coherent Corp.
+EV-SAYARI-MEGASPEED-MY,https://graph.sayari.com/resource/entity/URvHx-DKHorck1VqtP1WTg,Sayari Graph,2026-11-16,PRIMARY,B,2,Megaspeed International Pte Ltd recorded as shareholder of Megaspeed International Sdn Bhd (Johor).
+EV-NAME-INFERRED,https://graph.sayari.com/resource/entity/1KiUMzbIgT40GfIy6iJuAg,Sayari Graph (entity name and address only),2026-11-16,ANALYST_NOTE,C,3,Affiliation inferred from the entity name; no registry ownership record found in Sayari. Students should confirm.
+EV-REPRESENTATIVE,,Analyst assumption (representative supply relationship),2026-11-16,ANALYST_NOTE,C,4,"Component supplier is a typical source for this part class, not a traced shipment. Replace with a traced trade record."
+EV-SEED-TENANT,,Illustrative tenant record,2026-11-16,ANALYST_NOTE,C,3,Tenants are hypothetical; real firms are not named as customers of a hypothetical data center.
+EV-SEED-WEAK,,Illustrative record,2026-11-16,ANALYST_NOTE,D,4,"Illustrative placeholder for a weak, unconfirmed link."

@@ -11,7 +11,7 @@ import { BUCKETS, bucketOf, monthLabel } from "./ui/shared";
 import { BRANCH_PLAIN, SCENARIO_PLAIN } from "./ui/plain";
 import { Guilloche } from "./ui/ornament";
 import {
-  EvidenceView, LeversView, MatrixView, Overview, RulesView, TenantsView, TimelineView, WordsView,
+  EvidenceView, LeversView, MatrixView, Overview, PartsView, RulesView, TenantsView, TimelineView, WordsView,
   type Model, type PresetLever, type TabId, type TourStep,
 } from "./ui/views";
 
@@ -21,6 +21,7 @@ const MONTHS = monthRange("2026-10-01", "2033-12-01");
 const TABS: { id: TabId; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "rules", label: "Rules" },
+  { id: "parts", label: "Parts" },
   { id: "matrix", label: "Exposure matrix" },
   { id: "timeline", label: "Timeline" },
   { id: "levers", label: "Mitigations" },
@@ -104,11 +105,11 @@ export default function App() {
   };
 
   const tour: TourStep[] = [
-    { title: "Establish the exposure floor", body: "Under the Dropped branch only enacted instruments apply. Inverter and 1260H exposure already exist.", cta: "Show the floor",
+    { title: "Establish the baseline", body: "In the Dropped case only enacted regulatory actions apply. Inverter and 1260H exposure already exist.", cta: "Show the baseline",
       run: () => { setOpticsOn(true); setOpticsBranch("dropped"); setLevers([]); setCursorOn(false); setSelected("W2|XCVR-A-1600"); go("matrix"); } },
     { title: "Introduce the reported draft", body: "The reported 3.2T rule bars Supplier A in W3 and W4, graded REPORTED with no primary source.", cta: "Show the draft",
       run: () => { setOpticsBranch("as-reported"); setLevers([]); setCursorOn(false); setSelected("W3|XCVR-A-3200"); go("matrix"); } },
-    { title: "Engineer US content", body: "A US DSP and laser lift the estimate to about 70%, but the range straddles 65%, so the line resolves to Monitor rather than Clear.", cta: "Apply the lever",
+    { title: "Engineer US content", body: "A US DSP and laser lift the estimate to about 70%, but the range straddles 65%, so the line resolves to Monitor rather than Clear.", cta: "Apply the mitigation",
       run: () => { setOpticsBranch("as-reported"); setLevers(["usc"]); setCursorOn(false); go("levers"); } },
     { title: "Advance the as-of date", body: "S.5548's five-year transition means the federal NSS bar in W4 appears only from mid-2032.", cta: "Open the timeline",
       run: () => { setOpticsBranch("as-reported"); setCursorOn(true); setCursor(MONTHS.indexOf("2032-07-01")); setSelected("W4|XCVR-A-3200"); go("timeline"); } },
@@ -148,13 +149,14 @@ export default function App() {
               onChange={(e) => { setCursor(Number(e.target.value)); setCursorOn(true); }} />
             <span className="readout">{cursorOn ? monthLabel(MONTHS[cursor]) : "per wave"}</span>
           </div>
-          {levers.length > 0 && <button className="lever-pill" onClick={() => go("levers")}>{levers.length} lever{levers.length > 1 ? "s" : ""} applied</button>}
+          {levers.length > 0 && <button className="lever-pill" onClick={() => go("levers")}>{levers.length} mitigation{levers.length > 1 ? "s" : ""} applied</button>}
         </div>
       </div>
 
       <main>
         {tab === "overview" && <Overview m={model} tour={tour} />}
         {tab === "rules" && <RulesView m={model} />}
+        {tab === "parts" && <PartsView m={model} />}
         {tab === "matrix" && <MatrixView m={model} />}
         {tab === "timeline" && <TimelineView m={model} series={core.series} onCursor={(d) => { setCursor(MONTHS.indexOf(d)); setCursorOn(true); }} />}
         {tab === "levers" && <LeversView m={model} presets={PRESETS} active={levers} toggle={(id, on) => setLevers((l) => (on ? [...l, id] : l.filter((x) => x !== id)))} />}
@@ -176,7 +178,7 @@ export default function App() {
           </div>
           <div>
             <span className="foot-h">About the data</span>
-            <p>Suppliers, SKUs, costs, value shares and tenants are illustrative placeholders. Named firms appear only as rule targets drawn from public reporting. The import contract accepts Sayari-traced replacements without code changes.</p>
+            <p>Manufacturers and ownership links are drawn from Sayari. Component supply relationships are representative, and the data center, tenants, quantities and prices are hypothetical. Inclusion in a supply path is not an allegation of wrongdoing.</p>
           </div>
           <div>
             <span className="foot-h">Limitations</span>

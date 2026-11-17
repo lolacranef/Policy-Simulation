@@ -64,8 +64,10 @@ describe("§7B.4.5 Megaspeed listed", () => {
     const ex = ra("megaspeed-listed");
     expect(cell(ex, "W5", "SRV-GPU-SEA").status).toBe("BLOCKED_EXPORT");
     expect(cell(ex, "W6", "SRV-GPU-SEA").status).toBe("BLOCKED_EXPORT");
-    expect(cell(ex, "W5", "T3").status).toBe("BLOCKED_EXPORT");
-    expect(cell(ex, "W5", "SRV-GPU-SEA").path).toContain("ENT-MEGASPEED");
+    // The channel partner is a Sayari-recorded Megaspeed subsidiary, so the block runs through ownership.
+    expect(cell(ex, "W5", "SRV-GPU-SEA").path).toEqual(["SRV-GPU-SEA", "SEA-BROKER", "ENT-MEGASPEED"]);
+    // Tenants are hypothetical and none is linked to Megaspeed; the unverified one stays on Monitor.
+    expect(cell(ex, "W5", "T3").status).toBe("WATCH");
     expect(cell(ex, "W5", "T1").status).toBe("CLEAR");
     expect(cell(ex, "W1", "SRV-GPU-1").status).toBe("CLEAR");
   });

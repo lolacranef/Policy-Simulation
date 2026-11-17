@@ -7,11 +7,11 @@ import type { BuildWave, DateStr, EvidenceGrade, Exposure, ProductCategory, Rule
 import { DeltaBars, ExposureOverTime, Swimlanes, WaveBars, type MonthCounts } from "./charts";
 import { Guilloche, Rule } from "./ornament";
 import {
-  BRANCH_PLAIN, CATEGORY_HELP, CATEGORY_PLAIN, CONTEXT_PLAIN, country, FLAG_PLAIN, LEGAL_PLAIN, RULE_EXPLAINED, RULE_PLAIN, RULE_SHORT, SCENARIO_PLAIN, SEGMENT_PLAIN, sureness,
+  BRANCH_PLAIN, PRODUCT_EXPLAINED, ROLE_PLAIN, CATEGORY_HELP, CATEGORY_PLAIN, CONTEXT_PLAIN, country, FLAG_PLAIN, LEGAL_PLAIN, RULE_EXPLAINED, RULE_PLAIN, RULE_SHORT, SCENARIO_PLAIN, SEGMENT_PLAIN, sureness,
 } from "./plain";
 import { BUCKETS, BUCKET_LABEL, bucketOf, CATEGORY_LABEL, Chip, monthLabel } from "./shared";
 
-export type TabId = "overview" | "rules" | "matrix" | "timeline" | "levers" | "tenants" | "evidence" | "words";
+export type TabId = "overview" | "rules" | "parts" | "matrix" | "timeline" | "levers" | "tenants" | "evidence" | "words";
 
 export interface Model {
   input: EvalInput;
@@ -72,7 +72,7 @@ export function Overview({ m, tour }: { m: Model; tour: TourStep[] }) {
       <section className="heroband">
         <Guilloche className="hero-pattern" />
         <div className="wrap hero-in">
-          <span className="kicker">Regulatory foresight for data centers · intelligence as of 16 November 2026</span>
+          <span className="kicker">Regulatory horizon scanning for data centers · intelligence as of 16 November 2026</span>
           <h1 className="display hero-brand">Chokepoint</h1>
           <h2 className="display hero-title">If tomorrow's rules arrived today,<br />what could we still build?</h2>
           <p className="hero-lede">
@@ -90,9 +90,9 @@ export function Overview({ m, tour }: { m: Model; tour: TourStep[] }) {
 
       <div className="wrap view">
         <section className="steps" aria-label="How it works">
-          <div><span className="step-n">1</span><h3>Codify the intelligence</h3><p>Select a scenario and branch. Each encodes instruments by legal maturity (enacted, proposed, reported, rumored) with an assigned likelihood.</p></div>
-          <div><span className="step-n">2</span><h3>Evaluate the supply graph</h3><p>Every BOM line in every build wave is tested against each active rule on the relevant date, traversing component, ownership and affiliate edges.</p></div>
-          <div><span className="step-n">3</span><h3>Test mitigations</h3><p>Apply sourcing, architecture and contractual levers and compare the resulting changes in exposure, cost and schedule.</p></div>
+          <div><span className="step-n">1</span><h3>Codify the intelligence</h3><p>Select a scenario and case. Each encodes regulatory actions by legal status (enacted, proposed, reported, rumored) with an assigned likelihood.</p></div>
+          <div><span className="step-n">2</span><h3>Evaluate the supply graph</h3><p>Every BOM line item in every deployment phase is tested against each active rule on the relevant date, traversing component, ownership and affiliate edges.</p></div>
+          <div><span className="step-n">3</span><h3>Test mitigations</h3><p>Apply sourcing, architecture and contractual mitigations and compare the resulting changes in exposure, cost and schedule.</p></div>
         </section>
 
         <Rule />
@@ -100,10 +100,10 @@ export function Overview({ m, tour }: { m: Model; tour: TourStep[] }) {
         <section className="answer">
           <div>
             <span className="kicker">Current assessment</span>
-            <h2 className="display">{rows.length ? `${counts.block} of ${rows.length} positions barred` : "No scenario loaded"}</h2>
+            <h2 className="display">{rows.length ? `${counts.block} of ${rows.length} line items barred` : "No scenario loaded"}</h2>
             <p className="lede">
               {rows.length === 0 ? "Load a scenario in the bar above to evaluate exposure." : <>
-                Under the <b>{m.branchNames.join(" and ")}</b> branches, {counts.block} BOM-line or tenant positions are barred and {counts.lic} require
+                Under the <b>{m.branchNames.join(" and ")}</b> cases, {counts.block} BOM line items or tenants are barred and {counts.lic} require
                 a license; {counts.watch} warrant monitoring.{" "}
                 {first && <>Exposure first materializes in <b>{monthLabel(first.date)}</b> ({first.build_wave_id}). </>}
                 {worst && worst[1] > 0 && <>Aggregate likelihood-weighted risk is highest in <b>{worst[0]} · {waveName(m, worst[0])}</b>.</>}
@@ -122,7 +122,7 @@ export function Overview({ m, tour }: { m: Model; tour: TourStep[] }) {
 
         <div className="grid-2">
           <section className="card">
-            <header className="card-h"><h2>Exposure by build wave</h2><p>Status distribution of BOM lines and tenants in each wave. Select a wave to open it in the matrix.</p></header>
+            <header className="card-h"><h2>Exposure by deployment phase</h2><p>Status distribution of BOM line items and tenants in each deployment phase. Select a phase to open it in the matrix.</p></header>
             <WaveBars waves={m.input.waves} exposures={rows} onPick={(id) => { sessionWave.current = id; m.go("matrix"); }} />
           </section>
           <section className="card">
@@ -140,8 +140,8 @@ export function Overview({ m, tour }: { m: Model; tour: TourStep[] }) {
         </div>
 
         <section className="card">
-          <header className="card-h"><h2>Highest-priority exposures</h2><p>Ranked by severity, then by likelihood-weighted risk. Select one for its derivation.</p></header>
-          {top.length === 0 ? <p className="muted">No exposure under the selected branches.</p> : (
+          <header className="card-h"><h2>Highest-priority exposures</h2><p>Ranked by severity, then by likelihood-weighted risk. Select one for its audit trail.</p></header>
+          {top.length === 0 ? <p className="muted">No exposure under the selected cases.</p> : (
             <div className="toplist">
               {top.map((e) => {
                 const lead = e.hits.find((h) => h.status === e.status);
@@ -183,14 +183,14 @@ export function MatrixView({ m }: { m: Model }) {
 
   return (
     <>
-      <PageHead kicker="Exposure matrix" title="BOM line × build wave">
-        <p>Each cell evaluates one BOM line in one build wave against all active rules at the as-of date, by default the wave's procurement date. The status is the most severe rule outcome after carve-outs. The indicator beneath it reports evidentiary confidence: the weakest link across legal maturity, source grade and supplier-path evidence. Select a cell for its full derivation.</p>
+      <PageHead kicker="Exposure matrix" title="BOM line item × deployment phase">
+        <p>Each cell evaluates one BOM line item in one deployment phase against all active rules at the as-of date, by default the phase's procurement date. The status is the most severe rule outcome after carve-outs. The indicator beneath it reports evidentiary confidence: the weakest link across legal status, source grade and supplier-path evidence. Select a cell for its full audit trail.</p>
       </PageHead>
       <div className={`wrap view ${m.selected ? "with-side" : ""}`}>
         <div className="main-col">
           <div className="filters">
-            <div className="seg" role="group" aria-label="Wave filter">
-              <button aria-pressed={wave === "ALL"} onClick={() => setWave("ALL")}>All waves</button>
+            <div className="seg" role="group" aria-label="Phase filter">
+              <button aria-pressed={wave === "ALL"} onClick={() => setWave("ALL")}>All phases</button>
               {roots.map((id) => <button key={id} aria-pressed={wave === id} onClick={() => setWave(id)}>{id}</button>)}
             </div>
             <label className="toggle"><input type="checkbox" id="only-exposed" checked={onlyExposed} onChange={(e) => setOnlyExposed(e.target.checked)} />Exposed lines only</label>
@@ -224,7 +224,7 @@ export function MatrixView({ m }: { m: Model }) {
               </tbody>
             </table>
           </div>
-          <p className="footnote">An em dash indicates the line is not in that wave's BOM. Suppliers, SKUs, costs and value shares are illustrative placeholders.</p>
+          <p className="footnote">An em dash indicates the line is not in that wave's BOM. Manufacturers and ownership links are drawn from Sayari (see the Parts page); the build plan, quantities, prices and value shares are hypothetical estimates.</p>
         </div>
         {m.selected && <Explainer m={m} />}
       </div>
@@ -271,7 +271,7 @@ export function Explainer({ m }: { m: Model }) {
   if (!ex) {
     return (
       <aside className="side" aria-label="Why?">
-        <span className="kicker">Derivation</span>
+        <span className="kicker">Audit trail</span>
         <h3 className="display">Select a cell</h3>
         <p className="muted">Select any status to see the triggering rules, the supplier and ownership path, carve-out logic and the sources behind the confidence grade.</p>
       </aside>
@@ -283,7 +283,7 @@ export function Explainer({ m }: { m: Model }) {
   return (
     <aside className="side" aria-label="Why?">
       <div className="side-h">
-        <span className="kicker">Derivation · {waveName(m, ex.build_wave_id)} · as of {monthLabel(ex.date)}</span>
+        <span className="kicker">Audit trail · {waveName(m, ex.build_wave_id)} · as of {monthLabel(ex.date)}</span>
         <button className="x" onClick={() => m.select(null)} aria-label="Close">×</button>
       </div>
       <h3 className="display">{part ? CATEGORY_PLAIN[part.category] : m.graph.name(subject)}</h3>
@@ -374,7 +374,7 @@ export function TimelineView({ m, series, onCursor }: { m: Model; series: MonthC
   return (
     <>
       <PageHead kicker="Instrument timeline" title="When each instrument takes effect">
-        <p>Each lane shows a rule's effective date under the selected branches, encoded by legal maturity: solid for enacted, hatched for proposed or introduced, sparse hatching for reported or rumored. Dashed boxes mark statutory transition periods. Changing a branch shifts the lanes accordingly.</p>
+        <p>Each lane shows a rule's effective date under the selected cases, encoded by legal status: solid for enacted, hatched for proposed or introduced, sparse hatching for reported or rumored. Dashed boxes mark statutory transition periods. Changing a case shifts the lanes accordingly.</p>
       </PageHead>
       <div className="wrap view">
         <div className="grid-side">
@@ -389,7 +389,7 @@ export function TimelineView({ m, series, onCursor }: { m: Model; series: MonthC
                 <h3 className="display">{RULE_SHORT[ar.rule.id] ?? ar.instrument.name}</h3>
                 <p>{RULE_PLAIN[ar.rule.id]}</p>
                 <dl className="kv">
-                  <dt>Effective</dt><dd>{ar.rule.timing.effective_date ? monthLabel(ar.rule.timing.effective_date) : "Not set in this branch"}{ar.rule.timing.transition_years ? `, with a ${ar.rule.timing.transition_years}-year transition` : ""}</dd>
+                  <dt>Effective</dt><dd>{ar.rule.timing.effective_date ? monthLabel(ar.rule.timing.effective_date) : "Not set in this case"}{ar.rule.timing.transition_years ? `, with a ${ar.rule.timing.transition_years}-year transition` : ""}</dd>
                   <dt>Likelihood</dt><dd>{Math.round(ar.likelihood * 100)}%{entry ? `. ${entry.likelihood_basis}` : ""}</dd>
                   <dt>Instrument</dt><dd>{ar.instrument.name}</dd>
                   <dt>Confidence</dt><dd>{ar.rule.confidence_note}</dd>
@@ -400,7 +400,7 @@ export function TimelineView({ m, series, onCursor }: { m: Model; series: MonthC
           </aside>
         </div>
         <section className="card">
-          <header className="card-h"><h2>Exposure across the planning horizon</h2><p>Exposed positions when every wave is evaluated as of each month. Select a month to set the as-of date.</p></header>
+          <header className="card-h"><h2>Exposure across the planning horizon</h2><p>Exposed line items and tenants when every phase is evaluated as of each month. Select a month to set the as-of date.</p></header>
           <ExposureOverTime series={series} cursor={m.date} onPick={onCursor} />
         </section>
       </div>
@@ -417,8 +417,8 @@ export function LeversView({ m, presets, active, toggle }: { m: Model; presets: 
   const totals = r ? r.waves.reduce((a, w) => ({ risk: a.risk + w.delta_risk, cost: a.cost + w.delta_cost_usd }), { risk: 0, cost: 0 }) : null;
   return (
     <>
-      <PageHead kicker="Mitigation levers" title="Design and sourcing responses">
-        <p>Apply any combination of levers. All views re-evaluate, and the comparison below is against the same branches with no levers applied. Assumed carve-outs, such as an anticipated Conditional Approval or VEU grant, are labelled as assumptions throughout.</p>
+      <PageHead kicker="Mitigation options" title="Design and sourcing responses">
+        <p>Apply any combination of mitigations. All views re-evaluate, and the comparison below is against the same cases with no mitigations applied. Assumed carve-outs, such as an anticipated Conditional Approval or VEU grant, are labelled as assumptions throughout.</p>
       </PageHead>
       <div className="wrap view">
         <div className="lever-grid">
@@ -433,17 +433,17 @@ export function LeversView({ m, presets, active, toggle }: { m: Model; presets: 
             );
           })}
         </div>
-        {!r ? <section className="card"><p className="muted">Apply a lever to compare Δ exposure, Δ cost and Δ schedule by wave.</p></section> : (
+        {!r ? <section className="card"><p className="muted">Apply a mitigation to compare Δ exposure, Δ cost and Δ schedule by phase.</p></section> : (
           <div className="grid-2">
             <section className="card">
-              <header className="card-h"><h2>Δ likelihood-weighted risk by wave</h2><p>Negative values indicate reduced exposure.</p></header>
+              <header className="card-h"><h2>Δ likelihood-weighted risk by phase</h2><p>Negative values indicate reduced exposure.</p></header>
               <DeltaBars rows={r.waves.map((w) => ({ id: w.wave_id, delta: w.delta_risk }))} />
             </section>
             <section className="card">
               <header className="card-h"><h2>Cost and schedule impact</h2>{totals && <p>Net Δ cost {usd(totals.cost)}; net Δ weighted risk {totals.risk.toFixed(2)}.</p>}</header>
               <div className="tablewrap">
                 <table className="plain">
-                  <thead><tr><th>Wave</th><th>Δ cost</th><th>Δ schedule (wk)</th><th>Worst status after</th></tr></thead>
+                  <thead><tr><th>Phase</th><th>Δ cost</th><th>Δ schedule (wk)</th><th>Worst status after</th></tr></thead>
                   <tbody>
                     {r.waves.map((w) => (
                       <tr key={w.wave_id}>
@@ -456,7 +456,7 @@ export function LeversView({ m, presets, active, toggle }: { m: Model; presets: 
                   </tbody>
                 </table>
               </div>
-              <span className="label">Lever assumptions</span>
+              <span className="label">Mitigation assumptions</span>
               <ul className="notes">{r.notes.map((n, i) => <li key={i}>{n}</li>)}</ul>
             </section>
           </div>
@@ -482,7 +482,7 @@ export function TenantsView({ m }: { m: Model }) {
           {rows.length === 0 ? <section className="card"><p className="muted">Load Scenario 2 in the bar above to screen tenants.</p></section> : (
             <div className="matrix">
               <table>
-                <thead><tr><th scope="col">Tenant</th><th scope="col">Wave</th><th scope="col">Ultimate parent HQ</th><th scope="col">GPU-hours / month</th><th scope="col">KYC</th><th scope="col">Status</th></tr></thead>
+                <thead><tr><th scope="col">Tenant</th><th scope="col">Phase</th><th scope="col">Ultimate parent HQ</th><th scope="col">GPU-hours / month</th><th scope="col">KYC</th><th scope="col">Status</th></tr></thead>
                 <tbody>
                   {rows.map((e) => {
                     const t = m.input.dataset.tenants[e.tenant_id!];
@@ -516,8 +516,8 @@ export function EvidenceView({ m }: { m: Model }) {
   for (const b of m.bundles) for (const i of b.intel_items) for (const s of i.sources) sources.set(s.id, s);
   return (
     <>
-      <PageHead kicker="Evidence and provenance" title="Source quality and legal maturity">
-        <p>Confidence propagates as a weakest-link function of three inputs: the instrument's legal maturity, its best available source, and each supplier or ownership edge on the triggering path. Sources are graded on a simplified Admiralty scale, reliability A–F and credibility 1–6. Secondary reporting of unpublished drafts is retained but never presented as primary.</p>
+      <PageHead kicker="Evidence and provenance" title="Source reliability and legal status">
+        <p>Confidence propagates as a weakest-link function of three inputs: the instrument's legal status, its best available source, and each supplier or ownership edge on the triggering path. Sources are graded on the NATO Admiralty Code: source reliability A–F and information credibility 1–6. Secondary reporting of unpublished drafts is retained but never presented as primary.</p>
       </PageHead>
       <div className="wrap view">
         <section className="scale" aria-label="How sure scale">
@@ -533,7 +533,7 @@ export function EvidenceView({ m }: { m: Model }) {
             <header className="card-h"><h2>{SCENARIO_PLAIN[b.scenario.id]?.name ?? b.scenario.name}</h2><p>{SCENARIO_PLAIN[b.scenario.id]?.text}</p></header>
             <div className="tablewrap">
               <table className="plain">
-                <thead><tr><th>Rule(s)</th><th>Legal maturity</th><th>Sources and grades</th></tr></thead>
+                <thead><tr><th>Rule(s)</th><th>Legal status</th><th>Sources and grades</th></tr></thead>
                 <tbody>
                   {b.instruments.map((inst) => (
                     <tr key={inst.id}>
@@ -570,8 +570,8 @@ export function EvidenceView({ m }: { m: Model }) {
 // ================================================================ Words to know
 
 const WORDS: [string, string][] = [
-  ["Build wave", "A deployment phase with its own procurement date, energize date, customer segment and technology generation. The unit at which exposure is assessed."],
-  ["BOM line", "One part type in the bill of materials, with its SKU, FCC authorization history, US-content estimate and supplier tree."],
+  ["Deployment phase", "A tranche of capacity, typically one data hall, with its own procurement date, energization date, customer segment and technology generation. The unit at which exposure is assessed (W1–W6)."],
+  ["BOM line item", "One part type in the bill of materials, with its SKU, FCC authorization history, US-content estimate and supplier tree."],
   ["Logic-bearing component", "Under FCC 26-50, a hardware component that processes or controls data. Its producer, not the finished-device brand, determines Covered List exposure."],
   ["Covered List", "The FCC's list of equipment and services deemed to pose an unacceptable national-security risk. Covered equipment cannot obtain new equipment authorizations."],
   ["Equipment authorization", "FCC approval required before an RF device may be imported or marketed in the US. Rules restricting new authorizations leave existing grants in place."],
@@ -585,10 +585,10 @@ const WORDS: [string, string][] = [
   ["KYC", "Know-your-customer due diligence: verifying a counterparty's identity and beneficial ownership."],
   ["Validated end user (VEU)", "A BIS authorization that lets pre-approved facilities receive controlled items without individual licenses."],
   ["Carve-out", "A condition under which a rule does not apply, such as a US-content threshold, an existing authorization or a Conditional Approval."],
-  ["Scenario and branch", "A scenario is a coherent set of instruments; branches are alternative trajectories for it (as reported, delayed, broadened, dropped)."],
-  ["Evidence grade", "A simplified Admiralty code: source reliability (A–F) and information credibility (1–6), combined with legal maturity on a weakest-link basis."],
-  ["Weighted risk", "Likelihood × severity × confidence. Used to rank exposures and compare levers; not a probability."],
-  ["As-of date", "The date at which rules are evaluated: either each wave's procurement date, or a single chosen date for every wave."],
+  ["Scenario and case", "A scenario is a coherent set of regulatory actions; cases are alternative trajectories for it (as reported, delayed, broadened, dropped), as in base-case and downside-case planning."],
+  ["Admiralty Code grade", "The NATO intelligence grading of source reliability (A–F) and information credibility (1–6), combined here with legal status on a weakest-link basis."],
+  ["Weighted risk", "Likelihood × severity × confidence. Used to rank exposures and compare mitigations; not a probability."],
+  ["As-of date", "The date at which rules are evaluated: either each phase's procurement date, or a single chosen date for every phase."],
 ];
 
 export function WordsView() {
@@ -637,12 +637,12 @@ export function RulesView({ m }: { m: Model }) {
   return (
     <>
       <PageHead kicker="Rules" title="What each rule does">
-        <p>Every rule in the loaded scenarios, set out in the same structure: what it restricts, who it targets, what it covers, the transaction it bites on, when it takes effect under the selected branch, its exceptions, and why it matters for a data-center build. The last line of each card shows which positions it is affecting right now.</p>
+        <p>Every rule in the loaded scenarios, set out in the same structure: what it restricts, who it targets, what it covers, the regulated activity, when it takes effect under the selected case, its exceptions, and why it matters for a data-center build. The last line of each card shows which line items and tenants it currently exposes.</p>
       </PageHead>
       <div className="wrap view">
         <section className="howto">
-          <div><span className="label">How to read a rule</span><p>A rule bites only when four tests pass together. The <b>transaction</b> must be in scope, such as a new FCC authorization or DoD procurement. The <b>date</b> must be on or after the rule takes effect. The <b>product</b> must be in scope. And a <b>target</b> must appear somewhere on the part's supplier or ownership path. Exceptions are then applied, and the most severe surviving outcome becomes the cell's status.</p></div>
-          <div className="seg" role="group" aria-label="Filter by legal maturity">
+          <div><span className="label">How to read a rule</span><p>A rule bites only when four tests pass together. The <b>regulated activity</b> must be in scope, such as a new FCC authorization or DoD procurement. The <b>date</b> must be on or after the rule takes effect. The <b>product</b> must be in scope. And a <b>target</b> must appear somewhere on the part's supplier or ownership path. Exceptions are then applied, and the most severe surviving outcome becomes the cell's status.</p></div>
+          <div className="seg" role="group" aria-label="Filter by legal status">
             {MATURITY.map((f) => <button key={f.id} aria-pressed={filter === f.id} onClick={() => setFilter(f.id)}>{f.label}</button>)}
           </div>
         </section>
@@ -655,7 +655,7 @@ export function RulesView({ m }: { m: Model }) {
             <section key={b.scenario.id} className="rulegroup">
               <header className="rulegroup-h">
                 <h2>{SCENARIO_PLAIN[b.scenario.id]?.name ?? b.scenario.name}</h2>
-                <p>{SCENARIO_PLAIN[b.scenario.id]?.text} Branch: <b>{BRANCH_PLAIN[branchId]?.name ?? branchId}</b>. {BRANCH_PLAIN[branchId]?.text}</p>
+                <p>{SCENARIO_PLAIN[b.scenario.id]?.text} Case: <b>{BRANCH_PLAIN[branchId]?.name ?? branchId}</b>. {BRANCH_PLAIN[branchId]?.text}</p>
               </header>
               {rules.length === 0 && <p className="muted">No rules in this scenario match the filter.</p>}
               <div className="rulecards">
@@ -679,19 +679,19 @@ export function RulesView({ m }: { m: Model }) {
                       <p className="rulefull-what">{ex?.what ?? RULE_PLAIN[rule.id]}</p>
                       {ex && (
                         <dl className="facts">
-                          <div><dt>Targets</dt><dd>{ex.targets}</dd></div>
-                          <div><dt>Covers</dt><dd>{ex.covers}</dd></div>
-                          <div><dt>Bites on</dt><dd>{ex.where}</dd></div>
-                          <div><dt>Takes effect</dt><dd>{!active ? <span className="muted">Not active in this branch.</span>
+                          <div><dt>Covered parties</dt><dd>{ex.targets}</dd></div>
+                          <div><dt>Covered products</dt><dd>{ex.covers}</dd></div>
+                          <div><dt>Regulated activity</dt><dd>{ex.where}</dd></div>
+                          <div><dt>Effective date</dt><dd>{!active ? <span className="muted">Not active in this case.</span>
                             : ctxDates.length ? ctxDates.map(([c, d]) => <span key={c} className="block">{monthLabel(d as string)}: {CONTEXT_PLAIN[c as keyof typeof CONTEXT_PLAIN]}</span>)
-                            : eff ? <>{monthLabel(eff)}{trans ? <>; full effect after a {trans}-year transition</> : null}</> : <span className="muted">No effective date in this branch.</span>}</dd></div>
+                            : eff ? <>{monthLabel(eff)}{trans ? <>; full effect after a {trans}-year transition</> : null}</> : <span className="muted">No effective date in this case.</span>}</dd></div>
                           <div><dt>Exceptions</dt><dd>{ex.exceptions}</dd></div>
-                          <div className="wide"><dt>Why it matters</dt><dd>{ex.matters}</dd></div>
+                          <div className="wide"><dt>Implications</dt><dd>{ex.matters}</dd></div>
                         </dl>
                       )}
                       <div className="affects">
-                        <span className="label">Currently affecting</span>
-                        {affected.length === 0 ? <span className="muted small">No positions under the selected branches and as-of date.</span> : (
+                        <span className="label">Current exposure</span>
+                        {affected.length === 0 ? <span className="muted small">No line items or tenants exposed under the selected cases and as-of date.</span> : (
                           <div className="affect-list">
                             {affected.map((e) => {
                               const h = e.hits.find((x) => x.rule_id === rule.id && x.status !== "CLEAR")!;
@@ -708,6 +708,124 @@ export function RulesView({ m }: { m: Model }) {
                         <span>{inst!.name}</span>
                         {srcIds.map((id) => { const x = sources.get(id); return x ? <a key={id} href={x.url} target="_blank" rel="noreferrer">{x.publisher} ({x.reliability}{x.credibility})</a> : null; })}
                       </footer>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+// ================================================================ Parts
+
+const sayariUrl = (id: string) => `https://graph.sayari.com/resource/entity/${id}`;
+
+function EntityLink({ m, id }: { m: Model; id: string }) {
+  const e = m.input.dataset.entities[id];
+  if (!e) return <span>{id}</span>;
+  const label = <>{e.name}{e.production_country || e.country_of_incorporation ? <span className="muted small"> · {country(e.production_country || e.country_of_incorporation)}</span> : null}</>;
+  return e.sayari_entity_id ? <a href={sayariUrl(e.sayari_entity_id)} target="_blank" rel="noreferrer">{label}</a> : <span>{label}</span>;
+}
+
+export function PartsView({ m }: { m: Model }) {
+  const data = m.input.dataset;
+  const [cat, setCat] = useState<ProductCategory | "ALL">("ALL");
+  const usedIn = (id: string) => m.input.waves.filter((w) => (w.quantities[id] ?? 0) > 0);
+  const parts = Object.values(data.parts).filter((p) => !p.id.includes("+"));
+  const cats = CATEGORY_ORDER.filter((c) => parts.some((p) => p.category === c));
+  return (
+    <>
+      <PageHead kicker="Parts and products" title="What goes into the build">
+        <p>Every part in the bill of materials, with the company that makes it, who owns that company, the logic-bearing components inside, its US-content estimate and authorization status, the deployment phases that use it, and the rules affecting it now. Manufacturers and ownership links come from Sayari; the data center, tenants, quantities and prices are hypothetical.</p>
+      </PageHead>
+      <div className="wrap view">
+        <section className="howto">
+          <div>
+            <span className="label">How to read the evidence</span>
+            <p>Ownership links recorded in Sayari registry data are graded <b>B2</b>. Affiliations inferred only from an entity's name are graded <b>C3</b>. Component suppliers are <b>representative</b> of the part class (C3–C4), not traced shipments: they show the typical supply pattern and are the first thing to replace with traced trade records.</p>
+          </div>
+          <div className="seg" role="group" aria-label="Filter by product">
+            <button aria-pressed={cat === "ALL"} onClick={() => setCat("ALL")}>All parts</button>
+            {cats.map((c) => <button key={c} aria-pressed={cat === c} onClick={() => setCat(c)}>{CATEGORY_PLAIN[c]}</button>)}
+          </div>
+        </section>
+        {cats.filter((c) => cat === "ALL" || c === cat).map((c) => {
+          const ex = PRODUCT_EXPLAINED[c];
+          return (
+            <section key={c} className="rulegroup">
+              <header className="rulegroup-h"><h2>{CATEGORY_PLAIN[c]}</h2></header>
+              {ex && (
+                <dl className="facts productfacts">
+                  <div><dt>What it is</dt><dd>{ex.what}</dd></div>
+                  <div><dt>Role in the facility</dt><dd>{ex.role}</dd></div>
+                  <div><dt>Key components</dt><dd>{ex.inside}</dd></div>
+                  <div><dt>Why regulators care</dt><dd>{ex.regulators}</dd></div>
+                </dl>
+              )}
+              <div className="rulecards">
+                {parts.filter((p) => p.category === c).sort((a, b) => a.id.localeCompare(b.id, "en", { numeric: true })).map((p) => {
+                  const tree = m.graph.treeNodes(p.id, "CONTAINS_ANY_COMPONENT");
+                  const asm = tree.find((n) => n.edge.relationship === "assembles");
+                  const comps = tree.filter((n) => n.edge.relationship === "supplies_component");
+                  const owners = asm ? m.graph.ultimateParent(asm.node).path : [];
+                  const waves = usedIn(p.id);
+                  const affected = m.exposures.filter((e) => e.bom_line_id === p.id && e.status !== "CLEAR");
+                  const s = p.us_bom_value_share;
+                  const auth = p.fcc_auth.grant_date ? `Authorized ${monthLabel(p.fcc_auth.grant_date)}` : "New model: needs a new FCC authorization";
+                  return (
+                    <article key={p.id} className="rulefull" id={`part-${p.id}`}>
+                      <header className="rulefull-h">
+                        <span className="rule-tag">{p.id}</span>
+                        <h3>{p.brand} · {p.sku}</h3>
+                        {p.generation_gbps ? <span className="likely">{p.generation_gbps >= 1000 ? `${p.generation_gbps / 1000}T` : `${p.generation_gbps}G`}</span> : null}
+                      </header>
+                      <dl className="facts">
+                        <div><dt>Manufacturer</dt><dd>{asm ? <EntityLink m={m} id={asm.node} /> : "Unresolved"}{asm && <span className="code">grade {asm.edge.evidence_grade}</span>}</dd></div>
+                        <div><dt>Ownership chain</dt><dd>{owners.length ? owners.map((o, i) => <span key={o} className="block">{i > 0 ? "↳ " : ""}<EntityLink m={m} id={o} /></span>) : <span className="muted">Independent, or ownership not recorded</span>}</dd></div>
+                        <div className="wide"><dt>Key components</dt><dd>
+                          {comps.length === 0 ? <span className="muted">No sub-components modeled.</span> : (
+                            <ul className="comps">
+                              {comps.map((n) => (
+                                <li key={n.node + n.edge.component_role}>
+                                  <b>{ROLE_PLAIN[n.edge.component_role] ?? n.edge.component_role}</b>
+                                  {n.edge.logic_bearing && <span className="lb">logic-bearing</span>}
+                                  {n.edge.value_share_est != null && <span className="muted small"> ~{Math.round(n.edge.value_share_est * 100)}% of value</span>}
+                                  <span className="block"><EntityLink m={m} id={n.node} /> <span className="code" style={{ display: "inline" }}>grade {n.edge.evidence_grade}</span></span>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </dd></div>
+                        <div><dt>US BOM value (est.)</dt><dd>{Math.round(s.estimate * 100)}% <span className="muted small">(range {Math.round(s.low * 100)}–{Math.round(s.high * 100)}%)</span><span className="block muted small">{s.basis}</span></dd></div>
+                        <div><dt>FCC equipment authorization</dt><dd>{auth}{p.fcc_auth.conditional_approval_expiry && <span className="block muted small">Conditional Approval to {monthLabel(p.fcc_auth.conditional_approval_expiry)}{p.fcc_auth.conditional_approval_assumed ? " (assumed)" : ""}</span>}</dd></div>
+                        <div><dt>Unit cost and lead time</dt><dd>${p.unit_cost_usd.toLocaleString("en-US")} per unit · {p.lead_time_weeks} weeks <span className="block muted small">Estimates</span></dd></div>
+                        <div><dt>Alternates</dt><dd>{p.alternates.length ? p.alternates.map((a) => <span key={a} className="block">{a} · {data.parts[a]?.brand}</span>) : <span className="muted">None listed</span>}</dd></div>
+                      </dl>
+                      <div className="affects">
+                        <span className="label">Deployment phases</span>
+                        {waves.length === 0 ? <span className="muted small">Not in any deployment phase under the applied mitigations.</span> : (
+                          <div className="affect-list">{waves.map((w) => <span key={w.id} className="affect static"><b>{w.id}</b> · {w.quantities[p.id].toLocaleString("en-US")} units</span>)}</div>
+                        )}
+                      </div>
+                      <div className="affects">
+                        <span className="label">Current exposure</span>
+                        {affected.length === 0 ? <span className="muted small">No rule reaches this part under the selected cases.</span> : (
+                          <div className="affect-list">
+                            {affected.map((e) => {
+                              const h = e.hits.find((x) => x.status === e.status)!;
+                              return (
+                                <button key={e.key} className="affect" onClick={() => { m.select(e.key); m.go("matrix"); }}>
+                                  <b>{RULE_SHORT[h.rule_id] ?? h.rule_id}</b> · {e.build_wave_id} <Chip status={e.status} />
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
                     </article>
                   );
                 })}

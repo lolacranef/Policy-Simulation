@@ -1,6 +1,6 @@
 tenant_id,build_wave_id,name,sayari_entity_id,ultimate_parent_id,ultimate_parent_hq,allocated_gpus,monthly_gpu_hours,kyc_status,evidence_source_id
-T1,W5,US hyperscaler tenant (placeholder),,TP-US-HYPER,USA,1000,600000,VERIFIED,EV-SEED-TENANT
-T2,W5,Regional AI lab (placeholder),,TP-SG-HOLD,SGP,800,300000,VERIFIED,EV-SEED-TENANT
-T3,W5,Unverified GPU reseller (placeholder),,SEA-BROKER,SGP,400,200000,UNVERIFIED,EV-SEED-TENANT
-T4,W6,Offshore subsidiary of a Chinese gaming group (placeholder),,TP-CN-GAMING,CHN,700,450000,VERIFIED,EV-SEED-TENANT
-T5,W6,Local enterprise (placeholder),,TP-ID-LOCAL,IDN,150,90000,PARTIAL,EV-SEED-TENANT
+T1,W5,US hyperscaler tenant (hypothetical),,TP-US-HYPER,USA,1000,600000,VERIFIED,EV-SEED-TENANT
+T2,W5,Regional AI lab (hypothetical),,TP-SG-HOLD,SGP,800,300000,VERIFIED,EV-SEED-TENANT
+T3,W5,Unverified GPU reseller (hypothetical),,T3-PARENT,SGP,400,200000,UNVERIFIED,EV-SEED-TENANT
+T4,W6,Offshore subsidiary of a Chinese gaming group (hypothetical),,TP-CN-GAMING,CHN,700,450000,VERIFIED,EV-SEED-TENANT
+T5,W6,Local enterprise (hypothetical),,TP-ID-LOCAL,IDN,150,90000,PARTIAL,EV-SEED-TENANT

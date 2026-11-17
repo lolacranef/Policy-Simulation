@@ -24,7 +24,7 @@ export function WaveBars({ waves, exposures, onPick }: { waves: BuildWave[]; exp
   return (
     <div className="chart" ref={ref}>
       <Legend items={BUCKETS} />
-      <svg width={width} height={h} role="img" aria-label="Rows by status for each build wave">
+      <svg width={width} height={h} role="img" aria-label="Line items and tenants by status for each deployment phase">
         {rows.map((r, i) => {
           const y = i * rowH + 6;
           let x = labelW;
@@ -40,7 +40,7 @@ export function WaveBars({ waves, exposures, onPick }: { waves: BuildWave[]; exp
                 const seg = (
                   <rect key={b} x={x} y={y} width={bw} height={barH} rx={2} fill={COLOR[b]}
                     onMouseMove={(e) => setTip({ x: e.nativeEvent.offsetX + 12, y: e.nativeEvent.offsetY - 10,
-                      body: <><b>{r.w.id} · {BUCKET_LABEL[b]}</b><br />{n} of {r.total} positions</> })}
+                      body: <><b>{r.w.id} · {BUCKET_LABEL[b]}</b><br />{n} of {r.total} line items and tenants</> })}
                     onMouseLeave={() => setTip(null)} />
                 );
                 x += bw + 2;
@@ -164,7 +164,7 @@ export function Swimlanes({ rules, start, end, cursor, onPickRule }: {
           const st = ar.instrument.legal_status;
           const showTip = (e: RME) => setTip({ x: e.nativeEvent.offsetX + 12, y: e.nativeEvent.offsetY - 10, body: <>
             <b>{RULE_SHORT[ar.rule.id] ?? ar.instrument.name}</b><br />{LEGAL_PLAIN[st]} · likelihood {Math.round(ar.likelihood * 100)}%<br />
-            {eff ? <>Effective {monthLabel(eff)}{full ? <>; full effect {monthLabel(full)}</> : null}</> : <>No effective date in this branch</>}</> });
+            {eff ? <>Effective {monthLabel(eff)}{full ? <>; full effect {monthLabel(full)}</> : null}</> : <>No effective date in this case</>}</> });
           return (
             <g key={ar.rule.id} className="clickable" onClick={() => onPickRule(ar.rule.id)} onMouseMove={showTip} onMouseLeave={() => setTip(null)}>
               <rect x={0} y={y} width={width} height={rowH - 2} fill="transparent" />
@@ -177,7 +177,7 @@ export function Swimlanes({ rules, start, end, cursor, onPickRule }: {
               </>}
               {ctxStarts.map((d) => <line key={d} x1={x(d)} x2={x(d)} y1={y + 3} y2={y + 25} className="tick" />)}
               {ar.instrument.status_history.map((s) => <circle key={s.date + s.status} cx={x(s.date)} cy={y + 14} r={4.5} className="dot" />)}
-              {!eff && <text x={x("2027-04-01")} y={y + 18} className="ax-dim">no effective date in this branch</text>}
+              {!eff && <text x={x("2027-04-01")} y={y + 18} className="ax-dim">no effective date in this case</text>}
             </g>
           );
         })}

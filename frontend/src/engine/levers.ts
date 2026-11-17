@@ -94,7 +94,7 @@ export function applyLevers(input: EvalInput, levers: Lever[]): LeverApplication
         const src = dataset.parts[lv.line_id];
         if (!src) throw new Error(`No part "${lv.line_id}".`);
         const newId = `${lv.line_id}+USC`;
-        const subs: Record<string, string> = { dsp: lv.dsp_src ?? "US-SRC-DSP", laser: lv.laser_src ?? "US-SRC-LASER" };
+        const subs: Record<string, string> = { dsp: lv.dsp_src ?? "US-SRC-DSP", laser: lv.laser_src ?? "ENT-COHERENT" };
         ensureEntity(dataset, subs.dsp, "US-fabbed DSP source (assumed)");
         ensureEntity(dataset, subs.laser, "US laser fab (assumed)");
         let added = 0;

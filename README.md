@@ -40,6 +40,22 @@ Commit and push `docs/` with the source.
 | `frontend/src/data/seed/` | Seed CSVs in the student import format, the build waves, and both scenario files |
 | `frontend/tests/` | Vitest suites, one test per acceptance check |
 
+## Seed data sources
+
+Manufacturers, component makers and ownership links in `frontend/src/data/seed/` were resolved in Sayari on 16 November 2026, and each carries its Sayari entity ID. Evidence is graded by how the link is supported:
+
+| Grade | Basis | Example |
+|---|---|---|
+| B2 | Ownership recorded in Sayari registry data | Suzhou InnoLight → Zhongji InnoLight; Coherent Malaysia → Coherent Corp.; Megaspeed International Sdn. Bhd. → Megaspeed International Pte Ltd |
+| C3 | Inferred from the entity name, or a typical maker of the product class | Eoptolink Technology (Thailand) → Eoptolink; module and switch manufacturers |
+| C4 | Representative component supplier, not a traced shipment | DSP, laser and driver/TIA vendors |
+
+The data center, its deployment phases, quantities, prices, US-content shares and tenants are hypothetical. Tenants are deliberately not real firms. Inclusion in a supply path is not an allegation of wrongdoing.
+
+Sayari flags TP-Link Technologies Co., Ltd. as a Section 1260H entity. The listing date wasn't established, so the flag is noted but not modeled; confirming it would expose the W2 edge routers under the DoD rule.
+
+To regenerate the CSVs after editing the source tables, run `node scripts/gen-seed.mjs src/data/seed` from `frontend/`.
+
 ## Student data
 
 Replace the CSVs in `frontend/src/data/seed/` with traced data in the same format (§5, §7B.5). Required: `parts.csv`, `supplier_edges.csv`, `entities.csv`, `evidence.csv`. Optional: `tenants.csv`, `ownership_history.csv`, and `wave_quantities.csv` (`build_wave_id,part_id,qty`), which remaps the build waves to your own part IDs.
