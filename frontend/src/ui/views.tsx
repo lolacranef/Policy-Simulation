@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { ActiveRule } from "../engine/branches";
 import type { SupplyGraph } from "../engine/graph";
 import type { LeverReport } from "../engine/levers";
-import type { EvalInput } from "../engine/evaluate";
+import { evaluate, type EvalInput } from "../engine/evaluate";
 import type { BuildWave, DateStr, EvidenceGrade, Exposure, ProductCategory, RuleHit, ScenarioBundle, Source } from "../model/types";
 import { DeltaBars, ExposureOverTime, Swimlanes, WaveBars, type MonthCounts } from "./charts";
 import { Guilloche, Rule } from "./ornament";
@@ -737,6 +737,24 @@ export function PartsView({ m }: { m: Model }) {
   const usedIn = (id: string) => m.input.waves.filter((w) => (w.quantities[id] ?? 0) > 0);
   const parts = Object.values(data.parts).filter((p) => !p.id.includes("+"));
   const cats = CATEGORY_ORDER.filter((c) => parts.some((p) => p.category === c));
+  // Parts no phase buys are never evaluated, so test them as if swapped in: in the phases of the part they
+  // substitute for, or in every phase when they are not listed as anyone's alternate.
+  const hypo = useMemo(() => {
+    const used = new Set(m.input.waves.flatMap((w) => Object.keys(w.quantities).filter((k) => w.quantities[k] > 0)));
+    const out = new Map<string, { waveId: string; replacing: string | null; ex: Exposure | undefined }[]>();
+    for (const p of parts) {
+      if (used.has(p.id)) continue;
+      const parents = parts.filter((q) => q.alternates.includes(p.id) && used.has(q.id));
+      const targets = parents.length
+        ? parents.flatMap((q) => m.input.waves.filter((w) => (w.quantities[q.id] ?? 0) > 0).map((w) => ({ w, replacing: q.id as string | null })))
+        : m.input.waves.filter((w) => !w.parent_wave_id).map((w) => ({ w, replacing: null as string | null }));
+      out.set(p.id, targets.map(({ w, replacing }) => ({
+        waveId: w.id, replacing,
+        ex: evaluate({ ...m.input, waves: [{ ...w, quantities: { [p.id]: 1 }, tenants: [] }], date: m.date }).find((e) => e.bom_line_id === p.id),
+      })));
+    }
+    return out;
+  }, [m.input, m.date, parts]);
   return (
     <>
       <PageHead kicker="Parts and products" title="What goes into the build">
@@ -805,15 +823,41 @@ export function PartsView({ m }: { m: Model }) {
                         <div><dt>Unit cost and lead time</dt><dd>${p.unit_cost_usd.toLocaleString("en-US")} per unit · {p.lead_time_weeks} weeks <span className="block muted small">Estimates</span></dd></div>
                         <div><dt>Alternates</dt><dd>{p.alternates.length ? p.alternates.map((a) => <span key={a} className="block">{a} · {data.parts[a]?.brand}</span>) : <span className="muted">None listed</span>}</dd></div>
                       </dl>
+                      {waves.length === 0 ? (
+                        <div className="affects alt">
+                          <span className="altbadge">Alternate · not in the current build plan</span>
+                          {(() => {
+                            const rows = hypo.get(p.id) ?? [];
+                            const subFor = [...new Set(rows.map((r) => r.replacing).filter(Boolean))] as string[];
+                            return (
+                              <>
+                                <p className="muted small">
+                                  {subFor.length
+                                    ? <>Listed as a substitute for {subFor.map((id, i) => <span key={id}>{i ? ", " : ""}<b>{id}</b> ({data.parts[id]?.brand})</span>)}. A sourcing mitigation on the Mitigations page swaps it in.</>
+                                    : <>Not listed as a substitute for any part in the plan, so it is tested in every phase.</>}
+                                </p>
+                                <span className="label">If swapped in</span>
+                                <div className="affect-list">
+                                  {rows.map((r) => (
+                                    <span key={r.waveId + (r.replacing ?? "")} className="affect static">
+                                      <b>{r.waveId}</b>{r.replacing ? <> · replacing {r.replacing}</> : null} {r.ex ? <Chip status={r.ex.status} /> : <span className="muted small">not evaluated</span>}
+                                    </span>
+                                  ))}
+                                </div>
+                                {subFor.length > 0 && <button className="btn small" onClick={() => m.go("levers")}>Open mitigations</button>}
+                              </>
+                            );
+                          })()}
+                        </div>
+                      ) : (
+                      <>
                       <div className="affects">
                         <span className="label">Deployment phases</span>
-                        {waves.length === 0 ? <span className="muted small">Not in any deployment phase under the applied mitigations.</span> : (
-                          <div className="affect-list">{waves.map((w) => <span key={w.id} className="affect static"><b>{w.id}</b> · {w.quantities[p.id].toLocaleString("en-US")} units</span>)}</div>
-                        )}
+                        <div className="affect-list">{waves.map((w) => <span key={w.id} className="affect static"><b>{w.id}</b> · {w.quantities[p.id].toLocaleString("en-US")} units</span>)}</div>
                       </div>
                       <div className="affects">
                         <span className="label">Current exposure</span>
-                        {affected.length === 0 ? <span className="muted small">No rule reaches this part under the selected cases.</span> : (
+                        {affected.length === 0 ? <span className="muted small">Clear: no active rule reaches this part in the phases that use it.</span> : (
                           <div className="affect-list">
                             {affected.map((e) => {
                               const h = e.hits.find((x) => x.status === e.status)!;
@@ -826,6 +870,8 @@ export function PartsView({ m }: { m: Model }) {
                           </div>
                         )}
                       </div>
+                      </>
+                      )}
                     </article>
                   );
                 })}
