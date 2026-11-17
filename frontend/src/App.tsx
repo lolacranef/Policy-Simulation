@@ -11,6 +11,7 @@ import { BUCKETS, bucketOf, monthLabel } from "./ui/shared";
 import { BRANCH_PLAIN, SCENARIO_PLAIN } from "./ui/plain";
 import { Guilloche } from "./ui/ornament";
 import { LogoMark } from "./ui/logo";
+import { CasesView, DataCenterView, WhyView } from "./ui/views2";
 import {
   EvidenceView, LeversView, MatrixView, Overview, PartsView, RulesView, TenantsView, TimelineView, WordsView,
   type Model, type PresetLever, type TabId, type TourStep,
@@ -21,8 +22,11 @@ const MONTHS = monthRange("2026-10-01", "2033-12-01");
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "overview", label: "Overview" },
+  { id: "datacenter", label: "Data center" },
+  { id: "why", label: "Why it matters" },
   { id: "rules", label: "Rules" },
   { id: "parts", label: "Parts" },
+  { id: "cases", label: "Case files" },
   { id: "matrix", label: "Exposure matrix" },
   { id: "timeline", label: "Timeline" },
   { id: "levers", label: "Mitigations" },
@@ -50,6 +54,14 @@ const PRESETS: (PresetLever & { lever: Lever })[] = [
     lever: { kind: "APPLY_VEU", wave_id: "W5", assumed_approval_date: "2027-03-01" } },
 ];
 
+const DEFAULTS = { optics: "as-reported", remote: "as-issued" };
+const URL0 = (() => {
+  const q = new URLSearchParams(window.location.search);
+  const d = q.get("d");
+  return { o: q.get("o"), r: q.get("r"), d: d && /^\d{4}-\d{2}$/.test(d) ? `${d}-01` : null, l: (q.get("l") ?? "").split(",").filter(Boolean) };
+})();
+const QUICK: [string, string][] = [["Today", "2026-11-01"], ["2027", "2027-01-01"], ["2028", "2028-01-01"], ["2030", "2030-01-01"], ["Mid-2032", "2032-07-01"]];
+
 const tabFromHash = (): TabId => {
   const h = window.location.hash.replace("#", "") as TabId;
   return TABS.some((t) => t.id === h) ? h : "overview";
@@ -57,13 +69,36 @@ const tabFromHash = (): TabId => {
 
 export default function App() {
   const [tab, setTab] = useState<TabId>(tabFromHash);
-  const [opticsOn, setOpticsOn] = useState(true);
-  const [opticsBranch, setOpticsBranch] = useState("as-reported");
-  const [remoteOn, setRemoteOn] = useState(true);
-  const [remoteBranch, setRemoteBranch] = useState("as-issued");
-  const [cursorOn, setCursorOn] = useState(false);
-  const [cursor, setCursor] = useState(MONTHS.indexOf("2027-03-01"));
-  const [levers, setLevers] = useState<string[]>([]);
+  const [opticsOn, setOpticsOn] = useState(URL0.o !== "off");
+  const [opticsBranch, setOpticsBranch] = useState(URL0.o && URL0.o !== "off" ? URL0.o : DEFAULTS.optics);
+  const [remoteOn, setRemoteOn] = useState(URL0.r !== "off");
+  const [remoteBranch, setRemoteBranch] = useState(URL0.r && URL0.r !== "off" ? URL0.r : DEFAULTS.remote);
+  const [cursorOn, setCursorOn] = useState(!!URL0.d);
+  const [cursor, setCursor] = useState(URL0.d && MONTHS.includes(URL0.d) ? MONTHS.indexOf(URL0.d) : MONTHS.indexOf("2027-03-01"));
+  const [levers, setLevers] = useState<string[]>(URL0.l);
+  const [copied, setCopied] = useState<"" | "ok" | "fail">("");
+
+  // Keep the view in the address so a copied link reopens it.
+  useEffect(() => {
+    const q = new URLSearchParams();
+    if (!opticsOn) q.set("o", "off"); else if (opticsBranch !== DEFAULTS.optics) q.set("o", opticsBranch);
+    if (!remoteOn) q.set("r", "off"); else if (remoteBranch !== DEFAULTS.remote) q.set("r", remoteBranch);
+    if (cursorOn) q.set("d", MONTHS[cursor].slice(0, 7));
+    if (levers.length) q.set("l", levers.join(","));
+    const qs = q.toString();
+    window.history.replaceState(null, "", `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash}`);
+  }, [opticsOn, opticsBranch, remoteOn, remoteBranch, cursorOn, cursor, levers]);
+
+  const reset = () => {
+    setOpticsOn(true); setOpticsBranch(DEFAULTS.optics); setRemoteOn(true); setRemoteBranch(DEFAULTS.remote);
+    setCursorOn(false); setCursor(MONTHS.indexOf("2027-03-01")); setLevers([]); setSelected(null);
+  };
+  const copyLink = async () => {
+    try { await navigator.clipboard.writeText(window.location.href); setCopied("ok"); }
+    catch { setCopied("fail"); }
+    window.setTimeout(() => setCopied(""), 2500);
+  };
+  const jump = (d: string) => { const i = MONTHS.indexOf(d); if (i >= 0) { setCursor(i); setCursorOn(true); } };
   const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
@@ -131,10 +166,16 @@ export default function App() {
             </span>
           </a>
           <span className="banner">Illustrative data · scenario planning</span>
+          <div className="top-actions">
+            {levers.length > 0 && <button className="lever-pill" onClick={() => go("levers")}>{levers.length} mitigation{levers.length > 1 ? "s" : ""} applied</button>}
+            <button className="btn small" onClick={copyLink} aria-live="polite">{copied === "ok" ? "Link copied" : copied === "fail" ? "Copy the address bar" : "Copy link"}</button>
+            <button className="btn small quiet" onClick={reset}>Reset</button>
+          </div>
+
         </div>
         <nav className="tabs wrap" aria-label="Sections">
           {TABS.map((t) => (
-            <a key={t.id} href={`#${t.id}`} aria-current={tab === t.id ? "page" : undefined} onClick={(e) => { e.preventDefault(); go(t.id); }}>{t.label}</a>
+            <a key={t.id} href={`#${t.id}`} aria-current={tab === t.id ? "page" : undefined} onClick={(e) => { e.preventDefault(); go(t.id); }}><span className="tabnum">{String(TABS.indexOf(t) + 1).padStart(2, "0")}</span>{t.label}</a>
           ))}
         </nav>
       </header>
@@ -144,21 +185,32 @@ export default function App() {
           <BranchPicker bundle={OPTICS_SCENARIO} on={opticsOn} setOn={setOpticsOn} branch={opticsBranch} setBranch={setOpticsBranch} />
           <BranchPicker bundle={REMOTE_ACCESS_SCENARIO} on={remoteOn} setOn={setRemoteOn} branch={remoteBranch} setBranch={setRemoteBranch} />
           <div className="ctl ctl-date">
-            <span className="ctl-label">As of</span>
-            <div className="seg" role="group" aria-label="As of">
-              <button aria-pressed={!cursorOn} onClick={() => setCursorOn(false)} title="Evaluate each wave at its own procurement date">Procurement date</button>
-              <button aria-pressed={cursorOn} onClick={() => setCursorOn(true)} title="Evaluate every wave at one chosen month">Fixed date</button>
+            <div className="ctl-row">
+              <span className="ctl-label">As of</span>
+              <div className="seg" role="group" aria-label="As of">
+                <button aria-pressed={!cursorOn} onClick={() => setCursorOn(false)} title="Evaluate each phase at its own procurement date">Procurement date</button>
+                <button aria-pressed={cursorOn} onClick={() => setCursorOn(true)} title="Evaluate every phase at one chosen month">Fixed date</button>
+              </div>
             </div>
-            <input type="range" id="cursor" min={0} max={MONTHS.length - 1} value={cursor} aria-label="As-of month"
-              onChange={(e) => { setCursor(Number(e.target.value)); setCursorOn(true); }} />
-            <span className="readout">{cursorOn ? monthLabel(MONTHS[cursor]) : "per phase"}</span>
+            {cursorOn ? (
+              <div className="ctl-row">
+                <button className="stepbtn" aria-label="Previous month" onClick={() => setCursor((c) => Math.max(0, c - 1))}>‹</button>
+                <input type="range" id="cursor" min={0} max={MONTHS.length - 1} value={cursor} aria-label="As-of month"
+                  onChange={(e) => setCursor(Number(e.target.value))} />
+                <button className="stepbtn" aria-label="Next month" onClick={() => setCursor((c) => Math.min(MONTHS.length - 1, c + 1))}>›</button>
+                <span className="readout">{monthLabel(MONTHS[cursor])}</span>
+                <span className="quick">{QUICK.map(([l, d]) => <button key={l} aria-pressed={MONTHS[cursor] === d} onClick={() => jump(d)}>{l}</button>)}</span>
+              </div>
+            ) : <span className="ctl-sub">Each phase is checked on its own procurement date. Choose Fixed date to check everything at one month.</span>}
           </div>
-          {levers.length > 0 && <button className="lever-pill" onClick={() => go("levers")}>{levers.length} mitigation{levers.length > 1 ? "s" : ""} applied</button>}
         </div>
       </div>
 
       <main>
         {tab === "overview" && <Overview m={model} tour={tour} />}
+        {tab === "datacenter" && <DataCenterView m={model} />}
+        {tab === "why" && <WhyView />}
+        {tab === "cases" && <CasesView />}
         {tab === "rules" && <RulesView m={model} />}
         {tab === "parts" && <PartsView m={model} />}
         {tab === "matrix" && <MatrixView m={model} />}
@@ -197,14 +249,18 @@ export default function App() {
 function BranchPicker(p: { bundle: ScenarioBundle; on: boolean; setOn: (v: boolean) => void; branch: string; setBranch: (v: string) => void }) {
   const sc = p.bundle.scenario;
   const plain = SCENARIO_PLAIN[sc.id];
+  const desc = BRANCH_PLAIN[p.branch]?.text;
   return (
-    <div className="ctl">
-      <label className="toggle" title={plain?.text}>
-        <input type="checkbox" checked={p.on} onChange={(e) => p.setOn(e.target.checked)} aria-label={`Use ${plain?.name ?? sc.name}`} />{plain?.name ?? sc.name}
-      </label>
-      <select value={p.branch} disabled={!p.on} onChange={(e) => p.setBranch(e.target.value)} aria-label={`Version of ${plain?.name ?? sc.name}`} title={BRANCH_PLAIN[p.branch]?.text}>
-        {sc.branches.map((b) => <option key={b.id} value={b.id}>{BRANCH_PLAIN[b.id]?.name ?? b.name}</option>)}
-      </select>
+    <div className="ctl ctl-scn">
+      <div className="ctl-row">
+        <label className="toggle" title={plain?.text}>
+          <input type="checkbox" checked={p.on} onChange={(e) => p.setOn(e.target.checked)} aria-label={`Use ${plain?.name ?? sc.name}`} />{plain?.name ?? sc.name}
+        </label>
+        <select value={p.branch} disabled={!p.on} onChange={(e) => p.setBranch(e.target.value)} aria-label={`Case for ${plain?.name ?? sc.name}`}>
+          {sc.branches.map((b) => <option key={b.id} value={b.id}>{BRANCH_PLAIN[b.id]?.name ?? b.name}</option>)}
+        </select>
+      </div>
+      <span className="ctl-sub" title={desc}>{p.on ? desc : "Not loaded. Tick the box to include this scenario."}</span>
     </div>
   );
 }

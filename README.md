@@ -40,6 +40,20 @@ Commit and push `docs/` with the source.
 | `frontend/src/data/seed/` | Seed CSVs in the student import format, the build waves, and both scenario files |
 | `frontend/tests/` | Vitest suites, one test per acceptance check |
 
+## Pages
+
+| # | Page | What it shows |
+|---|---|---|
+| 01 | Overview | Briefing, status totals, exposure by phase, guided walkthrough, top exposures |
+| 02 | Data center | A rotatable 3D data hall; select a part for what it does, which rules reach it and its status by phase |
+| 03 | Why it matters | Six human rights harms that line up with the gaps in these rules, with sources |
+| 04 | Rules | Each rule in a fixed structure, with the positions it currently exposes |
+| 05 | Parts | Each product family and part: manufacturer, ownership chain, components, US content, authorization |
+| 06 | Case files | Six Sayari-based cases run through the rules: caught, partly, or missed |
+| 07–12 | Exposure matrix, Timeline, Mitigations, Tenant screening, Evidence, Glossary | The working views |
+
+The scenario cases, as-of date and applied mitigations are kept in the page address, so **Copy link** shares the exact view.
+
 ## Seed data sources
 
 Manufacturers, component makers and ownership links in `frontend/src/data/seed/` were resolved in Sayari on 16 November 2026, and each carries its Sayari entity ID. Evidence is graded by how the link is supported:

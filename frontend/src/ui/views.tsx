@@ -11,7 +11,7 @@ import {
 } from "./plain";
 import { BUCKETS, BUCKET_LABEL, bucketOf, CATEGORY_LABEL, Chip, monthLabel } from "./shared";
 
-export type TabId = "overview" | "rules" | "parts" | "matrix" | "timeline" | "levers" | "tenants" | "evidence" | "words";
+export type TabId = "overview" | "datacenter" | "why" | "rules" | "parts" | "cases" | "matrix" | "timeline" | "levers" | "tenants" | "evidence" | "words";
 
 export interface Model {
   input: EvalInput;
@@ -31,7 +31,7 @@ const CATEGORY_ORDER = Object.keys(CATEGORY_LABEL) as ProductCategory[];
 const rank = (e: Exposure) => BUCKETS.indexOf(bucketOf(e.status));
 const waveName = (m: Model, id: string) => m.input.waves.find((w) => w.id === id)?.name ?? id;
 
-function PageHead({ kicker, title, children }: { kicker: string; title: string; children: ReactNode }) {
+export function PageHead({ kicker, title, children }: { kicker: string; title: string; children: ReactNode }) {
   return (
     <header className="pagehead">
       <Guilloche className="pagehead-pattern" lines={18} h={240} />
