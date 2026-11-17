@@ -159,11 +159,11 @@ export default function App() {
         <Guilloche className="topbar-pattern" lines={10} h={120} />
         <div className="wrap topbar-in">
           <a className="brandlock" href="#overview" onClick={(e) => { e.preventDefault(); go("overview"); }} aria-label="Chokepoint home">
-            <LogoMark size={52} />
-            <span className="wordmark">
-              <span>Chokepoint</span>
-              <small>Find where new rules could choke your data-center supply chain</small>
+            <span className="brand-row">
+              <span className="logo-circle"><LogoMark size={40} /></span>
+              <span className="wordmark-title">Chokepoint</span>
             </span>
+            <small className="wordmark-tag">Find where new rules could choke your data-center supply chain</small>
           </a>
           <span className="banner">Illustrative data · scenario planning</span>
           <div className="top-actions">
@@ -225,7 +225,7 @@ export default function App() {
         <Guilloche className="foot-pattern" lines={14} h={200} />
         <div className="wrap foot-in">
           <div>
-            <span className="foot-brand"><LogoMark size={34} /><span className="foot-title">Chokepoint</span></span>
+            <span className="foot-brand"><span className="logo-circle small"><LogoMark size={30} /></span><span className="foot-title">Chokepoint</span></span>
             <p>A chokepoint is a narrow spot where one block can stop everything behind it. This model locates where prospective regulation would do that to a data center's supply chain. It conditions on scenarios; it does not forecast policy.</p>
           </div>
           <div>
